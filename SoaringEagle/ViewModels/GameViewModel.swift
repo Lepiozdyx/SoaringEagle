@@ -52,7 +52,8 @@ class GameViewModel: ObservableObject {
     }
     
     func togglePause(_ paused: Bool) {
-        if paused && (showVictoryOverlay || showDefeatOverlay) {
+        // Если есть активный оверлей победы или поражения, не переключаем паузу
+        if (showVictoryOverlay || showDefeatOverlay) {
             return
         }
         
@@ -62,8 +63,8 @@ class GameViewModel: ObservableObject {
             gameTimer?.invalidate()
             gameScene?.pauseGame()
         } else {
-            startGameTimer()
             gameScene?.resumeGame()
+            startGameTimer()
         }
         
         DispatchQueue.main.async { [weak self] in
@@ -80,18 +81,18 @@ class GameViewModel: ObservableObject {
     }
     
     func resetGame() {
+        // Отменяем все текущие таймеры и оверлеи
+        gameTimer?.invalidate()
+        invulnerabilityTimer?.invalidate()
+        
         showVictoryOverlay = false
         showDefeatOverlay = false
         
-        objectWillChange.send()
-        
-        gameTimer?.invalidate()
-        invulnerabilityTimer?.invalidate()
-        gameScene?.pauseGame()
-        
+        // Очищаем и перезапускаем игру в синхронизированном порядке
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             
+            // Сбрасываем все игровые параметры
             self.score = 0
             self.hasCollided = false
             self.isInvulnerable = false
@@ -103,13 +104,20 @@ class GameViewModel: ObservableObject {
             self.coinCollectedCount = 0
             self.accelerationCount = 0
             
+            // Сбрасываем все визуальные состояния
             self.showVictoryOverlay = false
             self.showDefeatOverlay = false
             
-            self.setupGame()
-            
+            // Важно: сначала сбрасываем сцену
             self.gameScene?.resetGame()
             
+            // Явно возобновляем игру после полного сброса
+            self.gameScene?.resumeGame()
+            
+            // Запускаем новый игровой таймер
+            self.startGameTimer()
+            
+            // Обновляем UI
             self.objectWillChange.send()
         }
     }

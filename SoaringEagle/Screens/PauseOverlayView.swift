@@ -2,6 +2,7 @@ import SwiftUI
 
 struct PauseOverlayView: View {
     @EnvironmentObject private var appViewModel: AppViewModel
+    @State private var isProcessingAction = false
     
     var body: some View {
         ZStack {
@@ -16,22 +17,41 @@ struct PauseOverlayView: View {
                     .padding(.bottom, 20)
                 
                 Button {
+                    // Продолжение игры
                     appViewModel.resumeGame()
                 } label: {
                     ActionButtonView(text: "Продолжить", iconName: "play.fill", color: .green)
                 }
                 
                 Button {
-                    appViewModel.restartLevel()
+                    // Предотвращаем многократное нажатие
+                    guard !isProcessingAction else { return }
+                    isProcessingAction = true
+                    
+                    // Перезапуск уровня
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        appViewModel.restartLevel()
+                    }
                 } label: {
                     ActionButtonView(text: "Начать заново", iconName: "arrow.counterclockwise", color: .orange)
                 }
+                .disabled(isProcessingAction)
+                .opacity(isProcessingAction ? 0.7 : 1.0)
                 
                 Button {
-                    appViewModel.goToMenu()
+                    // Предотвращаем многократное нажатие
+                    guard !isProcessingAction else { return }
+                    isProcessingAction = true
+                    
+                    // Переход в меню
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        appViewModel.goToMenu()
+                    }
                 } label: {
                     ActionButtonView(text: "В меню", iconName: "house.fill", color: .red)
                 }
+                .disabled(isProcessingAction)
+                .opacity(isProcessingAction ? 0.7 : 1.0)
             }
             .padding(30)
             .background(

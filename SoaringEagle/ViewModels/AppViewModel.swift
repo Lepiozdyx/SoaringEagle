@@ -93,26 +93,58 @@ class AppViewModel: ObservableObject {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             
+            // Сначала убеждаемся, что все оверлеи скрыты
+            if let gameVM = self.gameViewModel {
+                gameVM.showVictoryOverlay = false
+                gameVM.showDefeatOverlay = false
+                
+                // Важно сбросить состояние паузы до вызова resetGame
+                gameVM.isPaused = false
+            }
+            
+            // Теперь сбрасываем игру
             self.gameViewModel?.resetGame()
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.objectWillChange.send()
-                
-                if let gameVM = self.gameViewModel {
+            // Явно запускаем сцену
+            if let gameVM = self.gameViewModel {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    gameVM.togglePause(false)
                     gameVM.objectWillChange.send()
+                    self.objectWillChange.send()
                 }
             }
         }
     }
     
     func goToNextLevel() {
+        // Увеличиваем уровень
         gameLevel += 1
         gameState.currentLevel = gameLevel
         saveGameState()
         
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            
+            // Сначала убеждаемся, что все оверлеи скрыты
+            if let gameVM = self.gameViewModel {
+                gameVM.showVictoryOverlay = false
+                gameVM.showDefeatOverlay = false
+                
+                // Важно сбросить состояние паузы до вызова resetGame
+                gameVM.isPaused = false
+            }
+            
+            // Теперь сбрасываем игру
             self.gameViewModel?.resetGame()
-            self.objectWillChange.send()
+            
+            // Явно запускаем сцену
+            if let gameVM = self.gameViewModel {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    gameVM.togglePause(false)
+                    gameVM.objectWillChange.send()
+                    self.objectWillChange.send()
+                }
+            }
         }
     }
     

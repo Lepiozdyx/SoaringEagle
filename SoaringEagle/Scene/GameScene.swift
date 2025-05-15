@@ -187,9 +187,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func resumeGame() {
-        isGamePaused = false
-        lastUpdateTime = CACurrentMediaTime()
-        self.isPaused = false
+        // Важно: проверяем, активна ли пауза перед её снятием
+        if isGamePaused {
+            isGamePaused = false
+            // Сбрасываем счётчик времени для корректного обновления
+            lastUpdateTime = CACurrentMediaTime()
+            // Снимаем паузу с SpriteKit-сцены
+            self.isPaused = false
+        }
     }
     
     func resetGame() {
@@ -213,8 +218,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         baseSpeed = GameConstants.obstacleMinSpeed
         accelerationEnabled = false
         
-        // Запускаем игру заново
-        startGame()
+        // Запускаем игру заново - делаем паузу в любом случае,
+        // чтобы GameViewModel мог явно управлять запуском
+        isGamePaused = true
+        self.isPaused = true
+        
+        // Сбрасываем таймеры
+        lastUpdateTime = 0
+        lastObstacleSpawnTime = 0
+        lastCoinSpawnTime = 0
     }
     
     func setAcceleration(_ enabled: Bool) {

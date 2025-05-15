@@ -3,6 +3,7 @@ import SwiftUI
 struct DefeatOverlayView: View {
     @EnvironmentObject private var appViewModel: AppViewModel
     @State private var isAnimating = false
+    @State private var isProcessingAction = false
     
     var body: some View {
         ZStack {
@@ -28,16 +29,34 @@ struct DefeatOverlayView: View {
                 // Кнопки
                 VStack(spacing: 20) {
                     Button {
-                        appViewModel.restartLevel()
+                        // Предотвращаем многократное нажатие
+                        guard !isProcessingAction else { return }
+                        isProcessingAction = true
+                        
+                        // Перезапуск уровня
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            appViewModel.restartLevel()
+                        }
                     } label: {
                         ActionButtonView(text: "Повторить", iconName: "arrow.counterclockwise", color: .orange)
                     }
+                    .disabled(isProcessingAction)
+                    .opacity(isProcessingAction ? 0.7 : 1.0)
                     
                     Button {
-                        appViewModel.goToMenu()
+                        // Предотвращаем многократное нажатие
+                        guard !isProcessingAction else { return }
+                        isProcessingAction = true
+                        
+                        // Переход в меню
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            appViewModel.goToMenu()
+                        }
                     } label: {
                         ActionButtonView(text: "В меню", iconName: "house.fill", color: .blue)
                     }
+                    .disabled(isProcessingAction)
+                    .opacity(isProcessingAction ? 0.7 : 1.0)
                 }
                 .padding(.top, 20)
             }

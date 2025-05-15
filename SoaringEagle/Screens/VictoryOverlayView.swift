@@ -58,16 +58,12 @@ struct VictoryOverlayView: View {
                 // Кнопки
                 VStack(spacing: 20) {
                     Button {
+                        // Предотвращаем многократное нажатие
                         guard !navigatingToNextLevel else { return }
                         navigatingToNextLevel = true
                         
-                        // Закрываем оверлей победы
-                        if let gameVM = appViewModel.gameViewModel {
-                            gameVM.showVictoryOverlay = false
-                        }
-                        
-                        // Переходим на следующий уровень
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        // Переход на следующий уровень
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                             appViewModel.goToNextLevel()
                         }
                     } label: {
@@ -77,15 +73,12 @@ struct VictoryOverlayView: View {
                     .opacity(navigatingToNextLevel ? 0.7 : 1.0)
                     
                     Button {
+                        // Предотвращаем многократное нажатие
                         guard !navigatingToNextLevel else { return }
+                        navigatingToNextLevel = true
                         
-                        // Закрываем оверлей
-                        if let gameVM = appViewModel.gameViewModel {
-                            gameVM.showVictoryOverlay = false
-                        }
-                        
-                        // Переходим в меню
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        // Переход в меню
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                             appViewModel.goToMenu()
                         }
                     } label: {
