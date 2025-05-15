@@ -73,10 +73,10 @@ class AppViewModel: ObservableObject {
         gameState.levelsCompleted += 1
         
         // Добавляем монеты за победу на уровне
-        addCoins(50)
+        addCoins(GameConstants.levelCompletionReward)
         
         // Проверка достижения "Мастер-орёл"
-        if gameState.maxCompletedLevel >= 10 {
+        if gameState.maxCompletedLevel >= GameConstants.maxLevels {
             let achievementVM = AchievementViewModel()
             achievementVM.appViewModel = self
             achievementVM.unlockAchievement("master_eagle")
@@ -155,13 +155,13 @@ class AppViewModel: ObservableObject {
         if let lastClaimDate = gameState.lastDailyRewardClaimDate {
             // Проверяем, прошли ли 24 часа с момента последнего получения награды
             if calendar.dateComponents([.hour], from: lastClaimDate, to: now).hour! >= 24 {
-                addCoins(10) // Ежедневная награда 10 монет
+                addCoins(GameConstants.dailyReward)
                 gameState.lastDailyRewardClaimDate = now
                 saveGameState()
             }
         } else {
             // Если первое получение награды
-            addCoins(10)
+            addCoins(GameConstants.dailyReward)
             gameState.lastDailyRewardClaimDate = now
             saveGameState()
         }

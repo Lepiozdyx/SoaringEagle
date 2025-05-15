@@ -17,14 +17,14 @@ struct DailyRewardView: View {
                 
                 VStack {
                     // Top bar with back button and coins counter
-                    HStack {
+                    HStack(alignment: .top) {
                         Button {
                             svm.play()
                             appViewModel.navigateTo(.menu)
                         } label: {
                             Image(systemName: "arrow.left.circle.fill")
                                 .resizable()
-                                .frame(width: min(geometry.size.width * 0.05, 40), height: min(geometry.size.width * 0.05, 40))
+                                .frame(width: 50, height: 50)
                                 .foregroundColor(.white)
                                 .shadow(color: .black.opacity(0.5), radius: 3)
                         }
@@ -34,14 +34,14 @@ struct DailyRewardView: View {
                         // Coins counter
                         HStack {
                             Text("\(appViewModel.coins)")
-                                .gameFont(min(geometry.size.width * 0.025, 20))
+                                .gameFont(22)
                             
                             Image("coin")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(height: min(geometry.size.width * 0.035, 30))
+                                .frame(height: 35)
                         }
-                        .padding(.horizontal, 15)
+                        .padding(.horizontal)
                         .padding(.vertical, 8)
                         .background(
                             Capsule()
@@ -54,16 +54,16 @@ struct DailyRewardView: View {
                     Spacer()
                     
                     // Main content
-                    VStack(spacing: min(geometry.size.height * 0.03, 30)) {
-                        Text("ЕЖЕДНЕВНАЯ НАГРАДА")
-                            .gameFont(min(geometry.size.width * 0.035, 30))
+                    VStack(spacing: 10) {
+                        Text("daily reward")
+                            .gameFont(32)
                         
                         ZStack {
                             // Gift box
                             Image(systemName: "gift.fill")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: min(geometry.size.width * 0.15, 120), height: min(geometry.size.width * 0.15, 120))
+                                .frame(width: 50, height: 50)
                                 .foregroundColor(.yellow)
                                 .shadow(color: .black.opacity(0.5), radius: 10)
                                 .scaleEffect(isAnimating ? 1.1 : 1.0)
@@ -76,91 +76,84 @@ struct DailyRewardView: View {
                             
                             // Reward animation
                             if hasClaimedReward {
-                                VStack {
+                                HStack {
                                     Text("+10")
-                                        .gameFont(min(geometry.size.width * 0.05, 40))
+                                        .gameFont(32)
                                     
                                     Image("coin")
                                         .resizable()
                                         .scaledToFit()
-                                        .frame(width: min(geometry.size.width * 0.1, 80), height: min(geometry.size.width * 0.1, 80))
+                                        .frame(width: 35)
                                 }
                                 .scaleEffect(showCoinsAnimation ? 1.3 : 0.5)
                                 .opacity(showCoinsAnimation ? 1 : 0)
                                 .animation(.spring(response: 0.5, dampingFraction: 0.6), value: showCoinsAnimation)
                             }
                         }
-                        .frame(height: min(geometry.size.width * 0.2, 160))
                         
                         // Reward information
-                        VStack(spacing: min(geometry.size.height * 0.02, 15)) {
+                        VStack(spacing: 10) {
                             if appViewModel.canClaimDailyReward() {
                                 if !hasClaimedReward {
-                                    Text("Заходите в игру каждый день\nи получайте награду!")
-                                        .gameFont(min(geometry.size.width * 0.02, 16))
-                                        .multilineTextAlignment(.center)
+                                    Text("reward description")
+                                        .gameFont(18)
                                     
                                     Button {
                                         claimReward()
                                     } label: {
-                                        Text("ПОЛУЧИТЬ НАГРАДУ")
-                                            .gameFont(min(geometry.size.width * 0.025, 20))
-                                            .padding(.vertical, 10)
-                                            .padding(.horizontal, 20)
+                                        Text("get reward")
+                                            .gameFont(18)
+                                            .padding(.vertical, 8)
+                                            .padding(.horizontal)
                                             .background(
                                                 Capsule()
                                                     .fill(Color.eagleSecondary)
                                                     .shadow(color: .black.opacity(0.5), radius: 5)
                                             )
                                     }
-                                    .padding(.top, 10)
                                 } else {
-                                    Text("Награда получена!")
-                                        .gameFont(min(geometry.size.width * 0.025, 20))
+                                    Text("reward claimed!")
+                                        .gameFont(18)
                                     
                                     Button {
                                         appViewModel.navigateTo(.menu)
                                     } label: {
-                                        Text("ВЕРНУТЬСЯ В МЕНЮ")
-                                            .gameFont(min(geometry.size.width * 0.022, 18))
-                                            .padding(.vertical, 10)
-                                            .padding(.horizontal, 20)
+                                        Text("go to menu")
+                                            .gameFont(18)
+                                            .padding(.vertical, 8)
+                                            .padding(.horizontal)
                                             .background(
                                                 Capsule()
                                                     .fill(Color.eaglePrimary)
                                                     .shadow(color: .black.opacity(0.5), radius: 5)
                                             )
                                     }
-                                    .padding(.top, 10)
                                 }
                             } else {
-                                Text("Вы уже получили сегодняшнюю награду.")
-                                    .gameFont(min(geometry.size.width * 0.022, 18))
+                                Text("you already claimed reward")
+                                    .gameFont(18)
                                     .multilineTextAlignment(.center)
                                 
-                                Text("Возвращайтесь завтра!")
-                                    .gameFont(min(geometry.size.width * 0.025, 20))
-                                    .padding(.top, 5)
+                                Text("come back tommorow")
+                                    .gameFont(18)
                                 
                                 Button {
                                     appViewModel.navigateTo(.menu)
                                 } label: {
-                                    Text("ВЕРНУТЬСЯ В МЕНЮ")
-                                        .gameFont(min(geometry.size.width * 0.022, 18))
-                                        .padding(.vertical, 10)
-                                        .padding(.horizontal, 20)
+                                    Text("go to menu")
+                                        .gameFont(18)
+                                        .padding(.vertical, 8)
+                                        .padding(.horizontal)
                                         .background(
                                             Capsule()
                                                 .fill(Color.eaglePrimary)
                                                 .shadow(color: .black.opacity(0.5), radius: 5)
                                         )
                                 }
-                                .padding(.top, 10)
                             }
                         }
-                        .padding(.top, min(geometry.size.height * 0.025, 20))
                     }
-                    .padding(min(geometry.size.width * 0.04, 30))
+                    .padding()
                     .background(
                         RoundedRectangle(cornerRadius: 20)
                             .fill(Color.black.opacity(0.3))
@@ -169,7 +162,7 @@ struct DailyRewardView: View {
                                     .stroke(Color.white.opacity(0.7), lineWidth: 2)
                             )
                     )
-                    .frame(width: min(geometry.size.width * 0.7, 500))
+                    .frame(maxWidth: 350)
                     
                     Spacer()
                 }

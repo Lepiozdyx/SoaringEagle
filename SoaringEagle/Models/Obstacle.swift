@@ -32,11 +32,11 @@ struct Obstacle: Identifiable {
         // Задаем размер в зависимости от типа препятствия
         switch type {
         case .cloud:
-            self.size = CGSize(width: 100, height: 60)
+            self.size = GameConstants.ObstacleSizes.cloud
         case .balloon:
-            self.size = CGSize(width: 70, height: 90)
+            self.size = GameConstants.ObstacleSizes.balloon
         case .zeppelin:
-            self.size = CGSize(width: 150, height: 80)
+            self.size = GameConstants.ObstacleSizes.zeppelin
         }
     }
 }
@@ -45,6 +45,6 @@ struct Obstacle: Identifiable {
 struct Coin: Identifiable {
     let id = UUID()
     var position: CGPoint
-    let size = CGSize(width: 30, height: 30)
-    let value = 5
+    let size = GameConstants.coinSize
+    let value = GameConstants.coinValue
 }

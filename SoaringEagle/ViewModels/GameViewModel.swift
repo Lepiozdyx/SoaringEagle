@@ -4,7 +4,7 @@ import Combine
 class GameViewModel: ObservableObject {
     // MARK: - Published Properties
     @Published var score: Int = 0
-    @Published var lives: Int = 3
+    @Published var lives: Int = GameConstants.maxLives
     @Published var timeRemaining: Double = GameConstants.gameDuration
     @Published var isPaused: Bool = false
     @Published var showVictoryOverlay: Bool = false
@@ -90,7 +90,7 @@ class GameViewModel: ObservableObject {
             guard let self = self else { return }
             
             self.score = 0
-            self.lives = 3
+            self.lives = GameConstants.maxLives
             self.timeRemaining = GameConstants.gameDuration
             self.isPaused = false
             self.stamina = GameConstants.maxStamina
@@ -171,7 +171,7 @@ class GameViewModel: ObservableObject {
             
             if win {
                 self.showVictoryOverlay = true
-                if self.lives == 3 {
+                if self.lives == GameConstants.maxLives {
                     self.consecutiveNoCollisionLevels += 1
                 } else {
                     self.consecutiveNoCollisionLevels = 0
@@ -198,9 +198,9 @@ class GameViewModel: ObservableObject {
 // MARK: - GameSceneDelegate
 extension GameViewModel: GameSceneDelegate {
     func didCollectCoin() {
-        score += 5
+        score += GameConstants.coinValue
         coinCollectedCount += 1
-        appViewModel?.addCoins(5)
+        appViewModel?.addCoins(GameConstants.coinValue)
         
         DispatchQueue.main.async { [weak self] in
             self?.objectWillChange.send()

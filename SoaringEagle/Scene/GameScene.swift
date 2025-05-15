@@ -27,15 +27,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // Игровые ноды
     private var eagle: SKSpriteNode!
-    private var backgroundLayers: [SKSpriteNode] = []
+    private var backgroundA: SKSpriteNode!
+    private var backgroundB: SKSpriteNode!
     
     // Препятствия и монеты
     private var obstacles: [SKSpriteNode] = []
     private var coins: [SKSpriteNode] = []
-    
-    // Работа с фоном
-    private let numberOfBackgroundLayers = 3
-    private let backgroundMovePointsPerSec: CGFloat = 150.0
     
     // Управление временем
     private var lastUpdateTime: TimeInterval = 0
@@ -88,41 +85,29 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: - Настройка игры
     
     private func setupBackground() {
-        // Настройка слоев фона для эффекта parallax
-        for i in 0..<numberOfBackgroundLayers {
-            let backgroundTexture = SKTexture(imageNamed: getBackgroundImageName())
-            
-            // Создаем два одинаковых фоновых изображения для бесконечного скроллинга
-            for j in 0...1 {
-                let background = SKSpriteNode(texture: backgroundTexture)
-                background.anchorPoint = CGPoint.zero
-                
-                // Масштабируем фон по высоте экрана
-                let aspectRatio = background.size.width / background.size.height
-                background.size = CGSize(width: self.size.height * aspectRatio, height: self.size.height)
-                
-                // Позиционируем каждое изображение так, чтобы они шли друг за другом
-                let position = CGPoint(
-                    x: CGFloat(j) * background.size.width,
-                    y: 0
-                )
-                background.position = position
-                
-                // Устанавливаем z-позицию для эффекта parallax
-                background.zPosition = -CGFloat(numberOfBackgroundLayers - i)
-                
-                // Добавляем скорость движения для parallax эффекта
-                // Более дальние слои движутся медленнее
-                background.userData = NSMutableDictionary()
-                background.userData?.setValue(
-                    backgroundMovePointsPerSec * (CGFloat(i) + 1) / CGFloat(numberOfBackgroundLayers),
-                    forKey: "speedFactor"
-                )
-                
-                addChild(background)
-                backgroundLayers.append(background)
-            }
-        }
+        // Получаем текстуру фона
+        let backgroundTexture = SKTexture(imageNamed: getBackgroundImageName())
+        
+        // Создаем два одинаковых фоновых изображения для бесконечного скроллинга
+        backgroundA = SKSpriteNode(texture: backgroundTexture)
+        backgroundB = SKSpriteNode(texture: backgroundTexture)
+        
+        // Настройка первого фона
+        backgroundA.anchorPoint = CGPoint.zero
+        let aspectRatio = backgroundA.size.width / backgroundA.size.height
+        backgroundA.size = CGSize(width: self.size.height * aspectRatio, height: self.size.height)
+        backgroundA.position = CGPoint(x: 0, y: 0)
+        backgroundA.zPosition = -1
+        
+        // Настройка второго фона (сразу за первым)
+        backgroundB.anchorPoint = CGPoint.zero
+        backgroundB.size = backgroundA.size
+        backgroundB.position = CGPoint(x: backgroundA.size.width, y: 0)
+        backgroundB.zPosition = -1
+        
+        // Добавляем фоны на сцену
+        addChild(backgroundA)
+        addChild(backgroundB)
     }
     
     private func setupEagle() {
@@ -140,8 +125,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         // Настройка физического тела орла
         let smallerSize = CGSize(
-            width: eagle.size.width * 0.8,
-            height: eagle.size.height * 0.8
+            width: eagle.size.width * GameConstants.eaglePhysicsBodyScale,
+            height: eagle.size.height * GameConstants.eaglePhysicsBodyScale
         )
         
         eagle.physicsBody = SKPhysicsBody(rectangleOf: smallerSize)
@@ -248,7 +233,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             return
         }
         
-        // Обновление фона (параллакс эффект)
+        // Обновление фона (бесконечный скроллинг)
         updateBackground(with: dt)
         
         // Обновление препятствий и монет
@@ -263,23 +248,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     private func updateBackground(with dt: TimeInterval) {
-        for background in backgroundLayers {
-            guard let speedFactor = background.userData?.value(forKey: "speedFactor") as? CGFloat else {
-                continue
-            }
-            
-            // Применяем ускорение, если активно
-            let speed = accelerationEnabled ?
-                speedFactor * GameConstants.accelerationMultiplier :
-                speedFactor
-            
-            // Смещаем фон в соответствии со скоростью
-            background.position.x -= speed * CGFloat(dt)
-            
-            // Проверяем, вышел ли фон за пределы экрана
-            if background.position.x <= -background.size.width {
-                background.position.x += background.size.width * 2
-            }
+        // Рассчитываем скорость движения фона
+        let speed = accelerationEnabled ?
+            GameConstants.backgroundMovePointsPerSec * GameConstants.accelerationMultiplier :
+            GameConstants.backgroundMovePointsPerSec
+        
+        // Смещаем оба фона
+        backgroundA.position.x -= speed * CGFloat(dt)
+        backgroundB.position.x -= speed * CGFloat(dt)
+        
+        // Проверяем, если фон A полностью ушел за экран, перемещаем его сразу за фоном B
+        if backgroundA.position.x <= -backgroundA.size.width {
+            backgroundA.position.x = backgroundB.position.x + backgroundB.size.width
+        }
+        
+        // Проверяем, если фон B полностью ушел за экран, перемещаем его сразу за фоном A
+        if backgroundB.position.x <= -backgroundB.size.width {
+            backgroundB.position.x = backgroundA.position.x + backgroundA.size.width
         }
     }
     
@@ -331,11 +316,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // Устанавливаем размер в зависимости от типа
         switch obstacleType {
         case .cloud:
-            obstacle.size = CGSize(width: 100, height: 60)
+            obstacle.size = GameConstants.ObstacleSizes.cloud
         case .balloon:
-            obstacle.size = CGSize(width: 70, height: 90)
+            obstacle.size = GameConstants.ObstacleSizes.balloon
         case .zeppelin:
-            obstacle.size = CGSize(width: 150, height: 80)
+            obstacle.size = GameConstants.ObstacleSizes.zeppelin
         }
         
         // Случайная позиция по вертикали
@@ -362,7 +347,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private func spawnCoin() {
         // Создаем монету
         let coin = SKSpriteNode(imageNamed: "coin")
-        coin.size = CGSize(width: 30, height: 30)
+        coin.size = GameConstants.coinSize
         
         // Случайная позиция по вертикали, избегая крайних позиций
         let minY = coin.size.height * 2
@@ -385,7 +370,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         coins.append(coin)
         
         // Добавляем анимацию вращения
-        let rotateAction = SKAction.rotate(byAngle: CGFloat.pi * 2, duration: 2.0)
+        let rotateAction = SKAction.rotate(byAngle: CGFloat.pi * 2, duration: GameConstants.coinRotationDuration)
         let rotateForever = SKAction.repeatForever(rotateAction)
         coin.run(rotateForever)
     }
@@ -478,7 +463,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let clampedY = max(minY, min(maxY, newY))
         
         // Перемещаем орла с анимацией
-        let moveAction = SKAction.moveTo(y: clampedY, duration: 0.3)
+        let moveAction = SKAction.moveTo(y: clampedY, duration: GameConstants.defaultAnimationDuration)
         moveAction.timingMode = .easeOut
         eagle.run(moveAction)
     }

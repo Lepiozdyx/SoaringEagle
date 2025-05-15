@@ -10,21 +10,51 @@ struct GameConstants {
     static let gameDuration: TimeInterval = 30 // 30 секунд на уровень
     static let eagleInitialY: CGFloat = 0.5 // Начальная позиция орла (в процентах от высоты экрана)
     static let eagleHorizontalPosition: CGFloat = 0.15 // Позиция орла по горизонтали (в процентах от ширины экрана)
-    static let eagleSize = CGSize(width: 100, height: 70) // Размер орла
+    static let eagleSize = CGSize(width: 85, height: 45) // Размер орла
+    
+    // Константы для фона
+    static let backgroundMovePointsPerSec: CGFloat = 150.0 // Скорость движения фона
     
     // Константы для препятствий
     static let obstacleSpawnInterval: TimeInterval = 1.5 // Интервал появления препятствий
     static let obstacleMinSpeed: CGFloat = 150 // Минимальная скорость препятствий (поинтов в секунду)
     static let obstacleMaxSpeed: CGFloat = 300 // Максимальная скорость препятствий (поинтов в секунду)
     
+    // Размеры препятствий
+    struct ObstacleSizes {
+        static let cloud = CGSize(width: 100, height: 60)
+        static let balloon = CGSize(width: 60, height: 80)
+        static let zeppelin = CGSize(width: 120, height: 70)
+    }
+    
     // Константы для бонусов
     static let coinSpawnChance: Double = 0.3 // Вероятность появления монетки (0-1)
+    static let coinSize = CGSize(width: 30, height: 30) // Размер монеты
+    static let coinValue: Int = 5 // Стоимость монеты в игровых очках
     
     // Значения для ускорения и выносливости
     static let accelerationMultiplier: CGFloat = 1.5 // Множитель скорости при ускорении
     static let staminaDepletionRate: CGFloat = 20 // Скорость расхода выносливости (поинтов в секунду)
     static let staminaRecoveryRate: CGFloat = 10 // Скорость восстановления выносливости (поинтов в секунду)
     static let maxStamina: CGFloat = 100 // Максимальный запас выносливости
+    
+    // Константы для UI
+    static let progressBarHeight: CGFloat = 10 // Высота шкалы прогресса
+    static let staminaBarHeight: CGFloat = 8 // Высота шкалы выносливости
+    
+    // Награды за игровые действия
+    static let levelCompletionReward: Int = 50 // Награда за прохождение уровня
+    static let coinReward: Int = 5 // Награда за сбор монетки во время игры
+    static let achievementReward: Int = 10 // Награда за достижение
+    static let dailyReward: Int = 10 // Ежедневная награда
+    
+    // Физические константы
+    static let eaglePhysicsBodyScale: CGFloat = 0.8 // Масштаб физического тела орла относительно спрайта
+    static let coinRotationDuration: TimeInterval = 2.0 // Время полного оборота монеты
+    
+    // Игровые механики
+    static let maxLevels: Int = 10 // Общее количество уровней в игре
+    static let maxLives: Int = 3 // Максимальное количество жизней
 }
 
 extension Color {

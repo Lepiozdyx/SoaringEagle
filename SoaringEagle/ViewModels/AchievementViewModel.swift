@@ -29,12 +29,12 @@ class AchievementViewModel: ObservableObject {
     }
     
     func claimReward(for achievementId: String) {
-        guard let achievement = Achievement.byId(achievementId),
-              let appViewModel = appViewModel,
+        guard let appViewModel = appViewModel,
               isAchievementCompleted(achievementId),
               !isAchievementNotified(achievementId) else { return }
         
-        appViewModel.addCoins(achievement.reward)
+        // Добавляем награду за достижение из GameConstants
+        appViewModel.addCoins(GameConstants.achievementReward)
         
         if !appViewModel.gameState.notifiedAchievements.contains(achievementId) {
             appViewModel.gameState.notifiedAchievements.append(achievementId)

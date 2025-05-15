@@ -4,9 +4,6 @@ struct GameOverlayView: View {
     @EnvironmentObject private var appViewModel: AppViewModel
     @ObservedObject var gameViewModel: GameViewModel
     
-    private let progressBarHeight: CGFloat = 10
-    private let staminaBarHeight: CGFloat = 8
-    
     var body: some View {
         VStack {
             HStack {
@@ -68,14 +65,14 @@ struct GameOverlayView: View {
                     // Фон полоски прогресса
                     Rectangle()
                         .fill(Color.black.opacity(0.5))
-                        .frame(height: progressBarHeight)
-                        .cornerRadius(progressBarHeight / 2)
+                        .frame(height: GameConstants.progressBarHeight)
+                        .cornerRadius(GameConstants.progressBarHeight / 2)
                     
                     // Заполнение прогресса
                     Rectangle()
                         .fill(Color.eagleSecondary)
-                        .frame(width: calculateProgressWidth(), height: progressBarHeight)
-                        .cornerRadius(progressBarHeight / 2)
+                        .frame(width: calculateProgressWidth(), height: GameConstants.progressBarHeight)
+                        .cornerRadius(GameConstants.progressBarHeight / 2)
                 }
                 
                 // Шкала выносливости
@@ -90,14 +87,14 @@ struct GameOverlayView: View {
                     // Фон полоски выносливости
                     Rectangle()
                         .fill(Color.black.opacity(0.5))
-                        .frame(height: staminaBarHeight)
-                        .cornerRadius(staminaBarHeight / 2)
+                        .frame(height: GameConstants.staminaBarHeight)
+                        .cornerRadius(GameConstants.staminaBarHeight / 2)
                     
                     // Заполнение выносливости
                     Rectangle()
                         .fill(calculateStaminaColor())
-                        .frame(width: calculateStaminaWidth(), height: staminaBarHeight)
-                        .cornerRadius(staminaBarHeight / 2)
+                        .frame(width: calculateStaminaWidth(), height: GameConstants.staminaBarHeight)
+                        .cornerRadius(GameConstants.staminaBarHeight / 2)
                 }
             }
             .padding(.horizontal)
