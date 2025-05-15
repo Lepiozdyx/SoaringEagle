@@ -3,48 +3,33 @@ import SpriteKit
 // MARK: - Particle Emitter Factory
 // Класс для программного создания систем частиц
 class ParticleFactory {
-    // Создание эффекта взрыва при столкновении
-    static func createExplosionEffect(at position: CGPoint) -> SKEmitterNode {
-        let explosion = SKEmitterNode()
-        explosion.position = position
+    
+    // Создание программной текстуры круга для эффекта сбора монеты
+    private static func createCircleTexture(color: UIColor, size: CGSize = CGSize(width: 6, height: 6)) -> SKTexture {
+        let renderer = UIGraphicsImageRenderer(size: size)
+        let img = renderer.image { ctx in
+            let rect = CGRect(origin: .zero, size: size)
+            
+            // Рисуем круг
+            let path = UIBezierPath(ovalIn: rect)
+            
+            // Заполняем цветом
+            color.setFill()
+            path.fill()
+        }
         
-        // Настройка частиц
-        explosion.particleTexture = SKTexture(imageNamed: "coin")
-        explosion.particleBirthRate = 500
-        explosion.numParticlesToEmit = 50
-        explosion.particleLifetime = 0.5
-        explosion.particleLifetimeRange = 0.3
-        explosion.emissionAngle = 0
-        explosion.emissionAngleRange = CGFloat.pi * 2
-        explosion.particleSpeed = 100
-        explosion.particleSpeedRange = 50
-        explosion.particleAlpha = 0.8
-        explosion.particleAlphaRange = 0.2
-        explosion.particleAlphaSpeed = -1.0
-        explosion.particleScale = 0.2
-        explosion.particleScaleRange = 0.1
-        explosion.particleScaleSpeed = -0.2
-        explosion.particleColor = .red
-        explosion.particleColorBlendFactor = 1.0
-        explosion.particleBlendMode = .add
-        
-        // Добавляем последовательность действий для удаления через 1 секунду
-        let removeAfterDelay = SKAction.sequence([
-            SKAction.wait(forDuration: 1.0),
-            SKAction.removeFromParent()
-        ])
-        explosion.run(removeAfterDelay)
-        
-        return explosion
+        return SKTexture(image: img)
     }
     
-    // Создание эффекта сбора монеты
+    // Создание эффекта сбора монеты с золотыми кружочками
     static func createCoinCollectionEffect(at position: CGPoint) -> SKEmitterNode {
         let collection = SKEmitterNode()
         collection.position = position
         
+        // Используем текстуру круга
+        collection.particleTexture = createCircleTexture(color: .yellow)
+        
         // Настройка частиц
-        collection.particleTexture = SKTexture(imageNamed: "coin")
         collection.particleBirthRate = 300
         collection.numParticlesToEmit = 30
         collection.particleLifetime = 0.3
@@ -56,12 +41,40 @@ class ParticleFactory {
         collection.particleAlpha = 0.8
         collection.particleAlphaRange = 0.2
         collection.particleAlphaSpeed = -2.0
-        collection.particleScale = 0.2
-        collection.particleScaleRange = 0.1
+        collection.particleScale = 0.7  // Увеличиваем для лучшей видимости
+        collection.particleScaleRange = 0.3
         collection.particleScaleSpeed = 0.2
-        collection.particleColor = .yellow
+        
+        // Создаем градиент цветов от золотого до желтого
+        let colors = [UIColor(red: 1.0, green: 0.84, blue: 0.0, alpha: 1.0),
+                      UIColor.yellow]
+        let colorSequence = SKKeyframeSequence(keyframeValues: colors, times: [0, 1])
+        collection.particleColorSequence = colorSequence
         collection.particleColorBlendFactor = 1.0
         collection.particleBlendMode = .add
+        
+        // Создаем дополнительный эмиттер с более мелкими яркими частицами
+        let secondaryCollection = SKEmitterNode()
+        secondaryCollection.particleTexture = createCircleTexture(color: .white, size: CGSize(width: 4, height: 4))
+        secondaryCollection.particleBirthRate = 150
+        secondaryCollection.numParticlesToEmit = 15
+        secondaryCollection.particleLifetime = 0.2
+        secondaryCollection.particleLifetimeRange = 0.1
+        secondaryCollection.emissionAngle = -CGFloat.pi / 2
+        secondaryCollection.emissionAngleRange = CGFloat.pi / 4
+        secondaryCollection.particleSpeed = 90
+        secondaryCollection.particleSpeedRange = 30
+        secondaryCollection.particleAlpha = 0.9
+        secondaryCollection.particleAlphaRange = 0.1
+        secondaryCollection.particleAlphaSpeed = -3.0
+        secondaryCollection.particleScale = 0.5
+        secondaryCollection.particleScaleRange = 0.2
+        secondaryCollection.particleScaleSpeed = 0.3
+        secondaryCollection.particleColor = .white
+        secondaryCollection.particleColorBlendFactor = 0.8
+        secondaryCollection.particleBlendMode = .add
+        
+        collection.addChild(secondaryCollection)
         
         // Добавляем последовательность действий для удаления через 0.5 секунды
         let removeAfterDelay = SKAction.sequence([
@@ -73,27 +86,3 @@ class ParticleFactory {
         return collection
     }
 }
-
-/*
- Примечание: В обычном проекте SpriteKit эти эффекты создаются с помощью редактора частиц в Xcode
- и сохраняются как файлы .sks. В GameScene.swift они загружаются следующим образом:
- 
- let explosion = SKEmitterNode(fileNamed: "ExplosionParticle")!
- explosion.position = position
- addChild(explosion)
- 
- Для полного проекта вам нужно создать эти файлы в Xcode:
- 1. File -> New -> File -> SpriteKit Particle File -> Explosion
- 2. File -> New -> File -> SpriteKit Particle File -> Fire (для монет)
- 
- Затем настроить их параметры в соответствии с описанными выше.
- 
- В текущей реализации GameScene.swift мы можем заменить эти вызовы на:
- 
- // Вместо:
- // let explosion = SKEmitterNode(fileNamed: "ExplosionParticle")!
- 
- // Используем:
- let explosion = ParticleFactory.createExplosionEffect(at: position)
- addChild(explosion)
- */

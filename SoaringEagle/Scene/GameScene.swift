@@ -30,6 +30,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var backgroundA: SKSpriteNode!
     private var backgroundB: SKSpriteNode!
     
+    // Свойства для управления миганием орла
+    private var flickerAction: SKAction?
+    private var flickerRepeatAction: SKAction?
+    
     // Препятствия и монеты
     private var obstacles: [SKSpriteNode] = []
     private var coins: [SKSpriteNode] = []
@@ -215,6 +219,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func setAcceleration(_ enabled: Bool) {
         accelerationEnabled = enabled
+    }
+    
+    // методы для создания эффекта мигания орла
+    func makeEagleFlicker() {
+        // Останавливаем предыдущую анимацию мигания, если она была
+        eagle.removeAction(forKey: "flickerAction")
+        
+        // Создаем последовательность действий для мигания
+        let fadeOut = SKAction.fadeAlpha(to: 0.1, duration: 0.2)
+        let fadeIn = SKAction.fadeAlpha(to: 1.0, duration: 0.2)
+        let flickerSequence = SKAction.sequence([fadeOut, fadeIn])
+        
+        // Повторяем мигание
+        flickerRepeatAction = SKAction.repeat(flickerSequence, count: GameConstants.eagleFlickerCount)
+        
+        // Запускаем анимацию мигания
+        eagle.run(flickerRepeatAction!, withKey: "flickerAction")
+    }
+    
+    func stopEagleFlicker() {
+        eagle.removeAction(forKey: "flickerAction")
+        eagle.alpha = 1.0
     }
     
     // MARK: - Игровой цикл
@@ -415,9 +441,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     private func handleCollisionWithObstacle() {
-        // Создаем эффект столкновения
-        createExplosion(at: eagle.position)
-        
         // Сообщаем о столкновении через делегат
         gameDelegate?.didCollideWithObstacle()
     }
@@ -434,12 +457,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         // Сообщаем о сборе монеты через делегат
         gameDelegate?.didCollectCoin()
-    }
-    
-    private func createExplosion(at position: CGPoint) {
-        // Создаем эффект взрыва при столкновении
-        let explosion = ParticleFactory.createExplosionEffect(at: position)
-        addChild(explosion)
     }
     
     private func createCoinCollectionEffect(at position: CGPoint) {

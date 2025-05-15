@@ -39,14 +39,17 @@ struct GameOverlayView: View {
                 
                 Spacer()
                 
-                // Отображение жизней
+                // Отображение статуса здоровья орла
                 HStack(spacing: 5) {
-                    ForEach(0..<gameViewModel.lives, id: \.self) { _ in
-                        Image(systemName: "heart.fill")
-                            .foregroundColor(.red)
-                            .font(.system(size: 22))
-                            .shadow(color: .black.opacity(0.5), radius: 2)
-                    }
+                    Image(systemName: "heart.fill")
+                        .foregroundColor(gameViewModel.hasCollided ? .gray : .red)
+                        .font(.system(size: 22))
+                        .shadow(color: .black.opacity(0.5), radius: 2)
+                        .opacity(gameViewModel.isInvulnerable ? 0.5 : 1.0) // Мигание при неуязвимости
+                        .animation(gameViewModel.isInvulnerable ?
+                                   Animation.easeInOut(duration: 0.3).repeatForever(autoreverses: true) :
+                                   .default,
+                                   value: gameViewModel.isInvulnerable)
                 }
             }
             .padding(.horizontal)

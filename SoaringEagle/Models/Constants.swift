@@ -55,6 +55,7 @@ struct GameConstants {
     // Игровые механики
     static let maxLevels: Int = 10 // Общее количество уровней в игре
     static let maxLives: Int = 3 // Максимальное количество жизней
+    static let eagleFlickerCount: Int = 6 // Количество миганий орла
 }
 
 extension Color {

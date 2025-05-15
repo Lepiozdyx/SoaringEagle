@@ -4,7 +4,8 @@ import Combine
 class GameViewModel: ObservableObject {
     // MARK: - Published Properties
     @Published var score: Int = 0
-    @Published var lives: Int = GameConstants.maxLives
+    @Published var hasCollided: Bool = false // Заменяем lives на hasCollided
+    @Published var isInvulnerable: Bool = false // Флаг неуязвимости после первого столкновения
     @Published var timeRemaining: Double = GameConstants.gameDuration
     @Published var isPaused: Bool = false
     @Published var showVictoryOverlay: Bool = false
@@ -22,6 +23,7 @@ class GameViewModel: ObservableObject {
     // MARK: - Приватные свойства
     private var gameScene: GameScene?
     private var gameTimer: Timer?
+    private var invulnerabilityTimer: Timer?
     private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Публичные свойства
@@ -84,13 +86,15 @@ class GameViewModel: ObservableObject {
         objectWillChange.send()
         
         gameTimer?.invalidate()
+        invulnerabilityTimer?.invalidate()
         gameScene?.pauseGame()
         
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             
             self.score = 0
-            self.lives = GameConstants.maxLives
+            self.hasCollided = false
+            self.isInvulnerable = false
             self.timeRemaining = GameConstants.gameDuration
             self.isPaused = false
             self.stamina = GameConstants.maxStamina
@@ -163,6 +167,26 @@ class GameViewModel: ObservableObject {
         }
     }
     
+    // Новый метод для обработки неуязвимости
+    private func startInvulnerabilityTimer() {
+        invulnerabilityTimer?.invalidate()
+        
+        isInvulnerable = true
+        // Делаем орла мигающим
+        gameScene?.makeEagleFlicker()
+        
+        invulnerabilityTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { [weak self] _ in
+            guard let self = self else { return }
+            self.isInvulnerable = false
+            // Останавливаем мигание орла
+            self.gameScene?.stopEagleFlicker()
+            
+            DispatchQueue.main.async {
+                self.objectWillChange.send()
+            }
+        }
+    }
+    
     private func gameOver(win: Bool) {
         cleanup()
         
@@ -171,7 +195,7 @@ class GameViewModel: ObservableObject {
             
             if win {
                 self.showVictoryOverlay = true
-                if self.lives == GameConstants.maxLives {
+                if !self.hasCollided {
                     self.consecutiveNoCollisionLevels += 1
                 } else {
                     self.consecutiveNoCollisionLevels = 0
@@ -190,6 +214,7 @@ class GameViewModel: ObservableObject {
     
     private func cleanup() {
         gameTimer?.invalidate()
+        invulnerabilityTimer?.invalidate()
         gameScene?.pauseGame()
         isPaused = true
     }
@@ -208,10 +233,18 @@ extension GameViewModel: GameSceneDelegate {
     }
     
     func didCollideWithObstacle() {
-        lives -= 1
+        // Если орел неуязвим, игнорируем столкновение
+        if isInvulnerable {
+            return
+        }
         
-        if lives <= 0 {
+        if hasCollided {
+            // Если уже было столкновение, завершаем игру
             gameOver(win: false)
+        } else {
+            // Первое столкновение - включаем мерцание и неуязвимость
+            hasCollided = true
+            startInvulnerabilityTimer()
         }
         
         DispatchQueue.main.async { [weak self] in
