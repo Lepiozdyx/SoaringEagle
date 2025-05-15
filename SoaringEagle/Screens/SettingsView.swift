@@ -11,108 +11,114 @@ struct SettingsView: View {
     @State private var settingsOffset: CGFloat = 20
     
     var body: some View {
-        ZStack {
-            // Фон приложения
-            Color.eagleBackground
-                .edgesIgnoringSafeArea(.all)
-            
-            VStack {
-                // Верхняя панель с кнопкой назад
-                HStack {
-                    Button {
-                        svm.play()
-                        appViewModel.navigateTo(.menu)
-                    } label: {
-                        Image(systemName: "arrow.left.circle.fill")
-                            .resizable()
-                            .frame(width: 40, height: 40)
-                            .foregroundColor(.white)
-                            .shadow(color: .black.opacity(0.5), radius: 3)
+        GeometryReader { geometry in
+            ZStack {
+                // Background
+                Color.eagleBackground
+                    .edgesIgnoringSafeArea(.all)
+                
+                VStack {
+                    // Top bar with back button
+                    HStack {
+                        Button {
+                            svm.play()
+                            appViewModel.navigateTo(.menu)
+                        } label: {
+                            Image(systemName: "arrow.left.circle.fill")
+                                .resizable()
+                                .frame(width: min(geometry.size.width * 0.05, 40), height: min(geometry.size.width * 0.05, 40))
+                                .foregroundColor(.white)
+                                .shadow(color: .black.opacity(0.5), radius: 3)
+                        }
+                        
+                        Spacer()
                     }
+                    .padding(.horizontal)
+                    .padding(.top)
+                    
+                    Spacer()
+                    
+                    // Title
+                    Text("НАСТРОЙКИ")
+                        .gameFont(min(geometry.size.width * 0.05, 40))
+                        .scaleEffect(titleScale)
+                        .opacity(titleOpacity)
+                    
+                    Spacer()
+                    
+                    // Settings block
+                    VStack(spacing: min(geometry.size.height * 0.05, 40)) {
+                        SettingRow(
+                            title: "Звуковые эффекты",
+                            isOn: svm.soundIsOn,
+                            titleSize: min(geometry.size.width * 0.022, 18),
+                            switchSize: min(geometry.size.width * 0.075, 60),
+                            action: {
+                                svm.toggleSound()
+                            }
+                        )
+                        
+                        SettingRow(
+                            title: "Музыка",
+                            isOn: svm.musicIsOn,
+                            isDisabled: !svm.soundIsOn,
+                            titleSize: min(geometry.size.width * 0.022, 18),
+                            switchSize: min(geometry.size.width * 0.075, 60),
+                            action: {
+                                svm.toggleMusic()
+                            }
+                        )
+                        
+                        // Reset progress button
+                        Button {
+                            appViewModel.resetAllProgress()
+                        } label: {
+                            Text("Сбросить прогресс")
+                                .gameFont(min(geometry.size.width * 0.022, 18))
+                                .padding(.vertical, 10)
+                                .padding(.horizontal, 20)
+                                .background(
+                                    Capsule()
+                                        .stroke(Color.red, lineWidth: 2)
+                                )
+                        }
+                        .padding(.top, min(geometry.size.height * 0.025, 20))
+                    }
+                    .frame(width: min(geometry.size.width * 0.4, 300))
+                    .padding(min(geometry.size.width * 0.025, 20))
+                    .background(
+                        RoundedRectangle(cornerRadius: 15)
+                            .fill(Color.black.opacity(0.3))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 15)
+                                    .stroke(Color.white.opacity(0.5), lineWidth: 2)
+                            )
+                    )
+                    .opacity(settingsOpacity)
+                    .offset(y: settingsOffset)
+                    
+                    Spacer()
+                    
+                    // App version
+                    Text("Версия 1.0")
+                        .gameFont(min(geometry.size.width * 0.015, 12))
+                        .padding(.bottom, 4)
+                        .opacity(settingsOpacity)
                     
                     Spacer()
                 }
-                .padding(.horizontal)
-                .padding(.top)
-                
-                Spacer()
-                
-                // Заголовок
-                Text("НАСТРОЙКИ")
-                    .gameFont(40)
-                    .scaleEffect(titleScale)
-                    .opacity(titleOpacity)
-                
-                Spacer()
-                
-                // Блок настроек
-                VStack(spacing: 40) {
-                    SettingRow(
-                        title: "Звуковые эффекты",
-                        isOn: svm.soundIsOn,
-                        action: {
-                            svm.toggleSound()
-                        }
-                    )
-                    
-                    SettingRow(
-                        title: "Музыка",
-                        isOn: svm.musicIsOn,
-                        isDisabled: !svm.soundIsOn,
-                        action: {
-                            svm.toggleMusic()
-                        }
-                    )
-                    
-                    // Кнопка сброса прогресса
-                    Button {
-                        appViewModel.resetAllProgress()
-                    } label: {
-                        Text("Сбросить прогресс")
-                            .gameFont(18)
-                            .padding(.vertical, 10)
-                            .padding(.horizontal, 20)
-                            .background(
-                                Capsule()
-                                    .stroke(Color.red, lineWidth: 2)
-                            )
+                .padding()
+                .onAppear {
+                    // Start animations with different delays
+                    withAnimation(.spring(response: 0.5, dampingFraction: 0.6).delay(0.1)) {
+                        titleScale = 1.0
+                        titleOpacity = 1.0
                     }
-                    .padding(.top, 20)
-                }
-                .frame(width: 300)
-                .padding(20)
-                .background(
-                    RoundedRectangle(cornerRadius: 15)
-                        .fill(Color.black.opacity(0.3))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 15)
-                                .stroke(Color.white.opacity(0.5), lineWidth: 2)
-                        )
-                )
-                .opacity(settingsOpacity)
-                .offset(y: settingsOffset)
-                
-                Spacer()
-                
-                // Версия приложения
-                Text("Версия 1.0")
-                    .gameFont(12)
-                    .padding(.bottom, 4)
-                    .opacity(settingsOpacity)
-                
-                Spacer()
-            }
-            .padding()
-            .onAppear {
-                // Запускаем анимации с разной задержкой
-                withAnimation(.spring(response: 0.5, dampingFraction: 0.6).delay(0.1)) {
-                    titleScale = 1.0
-                    titleOpacity = 1.0
-                }
-                
-                withAnimation(.easeOut(duration: 0.5).delay(0.3)) {
-                    settingsOpacity = 1.0
-                    settingsOffset = 0
+                    
+                    withAnimation(.easeOut(duration: 0.5).delay(0.3)) {
+                        settingsOpacity = 1.0
+                        settingsOffset = 0
+                    }
                 }
             }
         }
@@ -123,16 +129,18 @@ struct SettingRow: View {
     let title: String
     let isOn: Bool
     var isDisabled: Bool = false
+    var titleSize: CGFloat = 18
+    var switchSize: CGFloat = 60
     let action: () -> Void
     
     var body: some View {
         HStack {
             Text(title)
-                .gameFont(18)
+                .gameFont(titleSize)
             
             Spacer()
             
-            ToggleSwitch(isOn: isOn, isDisabled: isDisabled, action: action)
+            ToggleSwitch(isOn: isOn, isDisabled: isDisabled, size: switchSize, action: action)
         }
     }
 }
@@ -140,6 +148,7 @@ struct SettingRow: View {
 struct ToggleSwitch: View {
     let isOn: Bool
     var isDisabled: Bool = false
+    var size: CGFloat = 60
     let action: () -> Void
     
     var body: some View {
@@ -147,7 +156,7 @@ struct ToggleSwitch: View {
             ZStack {
                 Capsule()
                     .fill(isOn ? Color.green.opacity(0.8) : Color.gray.opacity(0.5))
-                    .frame(width: 60, height: 30)
+                    .frame(width: size, height: size * 0.5)
                     .overlay(
                         Capsule()
                             .stroke(Color.white.opacity(0.7), lineWidth: 2)
@@ -156,9 +165,9 @@ struct ToggleSwitch: View {
                 
                 Circle()
                     .fill(Color.white)
-                    .frame(width: 26, height: 26)
+                    .frame(width: size * 0.43, height: size * 0.43)
                     .shadow(radius: 2)
-                    .offset(x: isOn ? 15 : -15)
+                    .offset(x: isOn ? size * 0.25 : -size * 0.25)
                     .animation(.spring(response: 0.2, dampingFraction: 0.7), value: isOn)
                     .opacity(isDisabled ? 0.5 : 1.0)
             }

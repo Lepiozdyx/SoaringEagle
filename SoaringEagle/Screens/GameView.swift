@@ -8,12 +8,12 @@ struct GameView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                // Основная SpriteKit сцена
+                // Main SpriteKit scene
                 SpriteKitGameView(size: geometry.size)
                     .environmentObject(appViewModel)
                     .edgesIgnoringSafeArea(.all)
                 
-                // Overlay с игровым UI
+                // Game UI overlay
                 if let gameViewModel = appViewModel.gameViewModel {
                     GameOverlayView(gameViewModel: gameViewModel)
                         .environmentObject(appViewModel)
@@ -21,7 +21,7 @@ struct GameView: View {
                 
                 if let gameVM = appViewModel.gameViewModel {
                     Group {
-                        // Overlay паузы
+                        // Pause overlay
                         if gameVM.isPaused && !gameVM.showVictoryOverlay && !gameVM.showDefeatOverlay {
                             PauseOverlayView()
                                 .environmentObject(appViewModel)
@@ -30,7 +30,7 @@ struct GameView: View {
                                 .zIndex(90)
                         }
                         
-                        // Overlay победы
+                        // Victory overlay
                         if gameVM.showVictoryOverlay {
                             VictoryOverlayView()
                                 .environmentObject(appViewModel)
@@ -39,7 +39,7 @@ struct GameView: View {
                                 .zIndex(100)
                         }
                         
-                        // Overlay поражения
+                        // Defeat overlay
                         if gameVM.showDefeatOverlay {
                             DefeatOverlayView()
                                 .environmentObject(appViewModel)
@@ -48,6 +48,12 @@ struct GameView: View {
                                 .zIndex(100)
                         }
                     }
+                }
+            }
+            .onDisappear {
+                // Pause game when leaving the view
+                if let gameVM = appViewModel.gameViewModel {
+                    gameVM.togglePause(true)
                 }
             }
         }

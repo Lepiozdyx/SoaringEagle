@@ -511,7 +511,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private func getEagleImageName(frame: Int) -> String {
         // Получаем имя изображения орла в зависимости от выбранного скина и кадра анимации
-        let baseName = "eagle"
+        let baseName = "eagle1"
         let skinPrefix = skinId == "default" ? "" : "\(skinId)_"
         let frameNumber = frame
         

@@ -9,7 +9,7 @@ class ParticleFactory {
         explosion.position = position
         
         // Настройка частиц
-        explosion.particleTexture = SKTexture(imageNamed: "spark")
+        explosion.particleTexture = SKTexture(imageNamed: "coin")
         explosion.particleBirthRate = 500
         explosion.numParticlesToEmit = 50
         explosion.particleLifetime = 0.5
@@ -44,7 +44,7 @@ class ParticleFactory {
         collection.position = position
         
         // Настройка частиц
-        collection.particleTexture = SKTexture(imageNamed: "spark")
+        collection.particleTexture = SKTexture(imageNamed: "coin")
         collection.particleBirthRate = 300
         collection.numParticlesToEmit = 30
         collection.particleLifetime = 0.3
