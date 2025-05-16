@@ -11,114 +11,96 @@ struct SettingsView: View {
     @State private var settingsOffset: CGFloat = 20
     
     var body: some View {
-        GeometryReader { geometry in
-            ZStack {
-                // Background
-                Color.eagleBackground
-                    .edgesIgnoringSafeArea(.all)
+        ZStack {
+            // Background
+            BgView()
+            
+            VStack(spacing: 0) {
+                // Top bar with back button
+                HStack {
+                    CircleButtonView(iconName: "arrowshape.left.fill", height: 60) {
+                        svm.play()
+                        appViewModel.navigateTo(.menu)
+                    }
+                    
+                    Spacer()
+                    
+                    // Reset progress button
+                    Button {
+                        appViewModel.resetAllProgress()
+                    } label: {
+                        Image(systemName: "ladybug.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 20)
+                            .foregroundStyle(.gray)
+                    }
+                }
                 
-                VStack {
-                    // Top bar with back button
-                    HStack {
-                        Button {
-                            svm.play()
-                            appViewModel.navigateTo(.menu)
-                        } label: {
-                            Image(systemName: "arrow.left.circle.fill")
-                                .resizable()
-                                .frame(width: min(geometry.size.width * 0.05, 40), height: min(geometry.size.width * 0.05, 40))
-                                .foregroundColor(.white)
-                                .shadow(color: .black.opacity(0.5), radius: 3)
-                        }
-                        
-                        Spacer()
-                    }
-                    .padding(.horizontal)
-                    .padding(.top)
-                    
-                    Spacer()
-                    
-                    // Title
-                    Text("НАСТРОЙКИ")
-                        .gameFont(min(geometry.size.width * 0.05, 40))
-                        .scaleEffect(titleScale)
-                        .opacity(titleOpacity)
-                    
-                    Spacer()
-                    
-                    // Settings block
-                    VStack(spacing: min(geometry.size.height * 0.05, 40)) {
-                        SettingRow(
-                            title: "Звуковые эффекты",
-                            isOn: svm.soundIsOn,
-                            titleSize: min(geometry.size.width * 0.022, 18),
-                            switchSize: min(geometry.size.width * 0.075, 60),
-                            action: {
-                                svm.toggleSound()
-                            }
-                        )
-                        
-                        SettingRow(
-                            title: "Музыка",
-                            isOn: svm.musicIsOn,
-                            isDisabled: !svm.soundIsOn,
-                            titleSize: min(geometry.size.width * 0.022, 18),
-                            switchSize: min(geometry.size.width * 0.075, 60),
-                            action: {
-                                svm.toggleMusic()
-                            }
-                        )
-                        
-                        // Reset progress button
-                        Button {
-                            appViewModel.resetAllProgress()
-                        } label: {
-                            Text("Сбросить прогресс")
-                                .gameFont(min(geometry.size.width * 0.022, 18))
-                                .padding(.vertical, 10)
-                                .padding(.horizontal, 20)
-                                .background(
-                                    Capsule()
-                                        .stroke(Color.red, lineWidth: 2)
-                                )
-                        }
-                        .padding(.top, min(geometry.size.height * 0.025, 20))
-                    }
-                    .frame(width: min(geometry.size.width * 0.4, 300))
-                    .padding(min(geometry.size.width * 0.025, 20))
+                Spacer()
+                
+                // Title
+                Text("Settings")
+                    .gameFont(34)
+                    .scaleEffect(titleScale)
+                    .opacity(titleOpacity)
+                    .padding(.vertical)
+                    .padding(.horizontal, 30)
                     .background(
-                        RoundedRectangle(cornerRadius: 15)
-                            .fill(Color.black.opacity(0.3))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 15)
-                                    .stroke(Color.white.opacity(0.5), lineWidth: 2)
-                            )
+                        Image(.labelFrame)
+                            .resizable()
                     )
-                    .opacity(settingsOpacity)
-                    .offset(y: settingsOffset)
+                
+                // Settings block
+                VStack(spacing: 25) {
+                    SettingRow(
+                        title: "Sound effects",
+                        isOn: svm.soundIsOn,
+                        titleSize: 22,
+                        switchSize: 60,
+                        action: {
+                            svm.toggleSound()
+                        }
+                    )
                     
-                    Spacer()
+                    SettingRow(
+                        title: "Music",
+                        isOn: svm.musicIsOn,
+                        isDisabled: !svm.soundIsOn,
+                        titleSize: 22,
+                        switchSize: 60,
+                        action: {
+                            svm.toggleMusic()
+                        }
+                    )
                     
                     // App version
-                    Text("Версия 1.0")
-                        .gameFont(min(geometry.size.width * 0.015, 12))
-                        .padding(.bottom, 4)
-                        .opacity(settingsOpacity)
-                    
-                    Spacer()
+                    Text("Version 1.0")
+                        .gameFont(10)
                 }
-                .padding()
-                .onAppear {
-                    // Start animations with different delays
-                    withAnimation(.spring(response: 0.5, dampingFraction: 0.6).delay(0.1)) {
-                        titleScale = 1.0
-                        titleOpacity = 1.0
-                    }
-                    
-                    withAnimation(.easeOut(duration: 0.5).delay(0.3)) {
-                        settingsOpacity = 1.0
-                        settingsOffset = 0
-                    }
+                .frame(maxWidth: 300)
+                .padding(.vertical)
+                .padding(.horizontal, 30)
+                .background(
+                    Image(.mainFrame)
+                        .resizable()
+                )
+                .opacity(settingsOpacity)
+                .offset(y: settingsOffset)
+                
+                Spacer()
+            }
+            .padding()
+            .onAppear {
+                // Start animations with different delays
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.6).delay(0.1)) {
+                    titleScale = 1.0
+                    titleOpacity = 1.0
+                }
+                
+                withAnimation(.easeOut(duration: 0.5).delay(0.3)) {
+                    settingsOpacity = 1.0
+                    settingsOffset = 0
                 }
             }
         }
@@ -155,23 +137,25 @@ struct ToggleSwitch: View {
         Button(action: action) {
             ZStack {
                 Capsule()
-                    .fill(isOn ? Color.green.opacity(0.8) : Color.gray.opacity(0.5))
+                    .foregroundStyle(isOn ? .green.opacity(0.8) : .gray.opacity(0.5))
                     .frame(width: size, height: size * 0.5)
                     .overlay(
                         Capsule()
-                            .stroke(Color.white.opacity(0.7), lineWidth: 2)
+                            .stroke(.white.opacity(0.8), lineWidth: 3)
+                            .shadow(color: .black, radius: 2, x: 1, y: 1)
                     )
                     .opacity(isDisabled ? 0.5 : 1.0)
                 
                 Circle()
-                    .fill(Color.white)
+                    .foregroundStyle(.white)
                     .frame(width: size * 0.43, height: size * 0.43)
-                    .shadow(radius: 2)
+                    .shadow(color: .black, radius: 2, x: 1, y: 1)
                     .offset(x: isOn ? size * 0.25 : -size * 0.25)
                     .animation(.spring(response: 0.2, dampingFraction: 0.7), value: isOn)
                     .opacity(isDisabled ? 0.5 : 1.0)
             }
         }
+        .buttonStyle(.plain)
         .disabled(isDisabled)
     }
 }

@@ -24,7 +24,8 @@ struct CircleButtonView: View {
                 
                 Image(systemName: iconName)
                     .resizable()
-                    .frame(width: 35, height: 35)
+                    .scaledToFit()
+                    .frame(width: 35)
                     .foregroundStyle(.black.opacity(0.6))
             }
         }
