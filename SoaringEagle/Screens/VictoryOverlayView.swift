@@ -67,7 +67,7 @@ struct VictoryOverlayView: View {
                             appViewModel.goToNextLevel()
                         }
                     } label: {
-                        ActionButtonView(text: "Следующий уровень", iconName: "arrow.right", color: .green)
+                        ActionView(text: "Следующий уровень", iconName: "arrow.right", color: .green)
                     }
                     .disabled(navigatingToNextLevel)
                     .opacity(navigatingToNextLevel ? 0.7 : 1.0)
@@ -82,7 +82,7 @@ struct VictoryOverlayView: View {
                             appViewModel.goToMenu()
                         }
                     } label: {
-                        ActionButtonView(text: "В меню", iconName: "house.fill", color: .blue)
+                        ActionView(text: "В меню", iconName: "house.fill", color: .blue)
                     }
                     .disabled(navigatingToNextLevel)
                     .opacity(navigatingToNextLevel ? 0.7 : 1.0)

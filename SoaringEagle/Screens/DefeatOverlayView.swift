@@ -38,7 +38,7 @@ struct DefeatOverlayView: View {
                             appViewModel.restartLevel()
                         }
                     } label: {
-                        ActionButtonView(text: "Повторить", iconName: "arrow.counterclockwise", color: .orange)
+                        ActionView(text: "Повторить", iconName: "arrow.counterclockwise", color: .orange)
                     }
                     .disabled(isProcessingAction)
                     .opacity(isProcessingAction ? 0.7 : 1.0)
@@ -53,7 +53,7 @@ struct DefeatOverlayView: View {
                             appViewModel.goToMenu()
                         }
                     } label: {
-                        ActionButtonView(text: "В меню", iconName: "house.fill", color: .blue)
+                        ActionView(text: "В меню", iconName: "house.fill", color: .blue)
                     }
                     .disabled(isProcessingAction)
                     .opacity(isProcessingAction ? 0.7 : 1.0)

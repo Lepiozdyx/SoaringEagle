@@ -20,7 +20,7 @@ struct PauseOverlayView: View {
                     // Продолжение игры
                     appViewModel.resumeGame()
                 } label: {
-                    ActionButtonView(text: "Продолжить", iconName: "play.fill", color: .green)
+                    ActionView(text: "Продолжить", iconName: "play.fill", color: .green)
                 }
                 
                 Button {
@@ -33,7 +33,7 @@ struct PauseOverlayView: View {
                         appViewModel.restartLevel()
                     }
                 } label: {
-                    ActionButtonView(text: "Начать заново", iconName: "arrow.counterclockwise", color: .orange)
+                    ActionView(text: "Начать заново", iconName: "arrow.counterclockwise", color: .orange)
                 }
                 .disabled(isProcessingAction)
                 .opacity(isProcessingAction ? 0.7 : 1.0)
@@ -48,7 +48,7 @@ struct PauseOverlayView: View {
                         appViewModel.goToMenu()
                     }
                 } label: {
-                    ActionButtonView(text: "В меню", iconName: "house.fill", color: .red)
+                    ActionView(text: "В меню", iconName: "house.fill", color: .red)
                 }
                 .disabled(isProcessingAction)
                 .opacity(isProcessingAction ? 0.7 : 1.0)
@@ -63,7 +63,7 @@ struct PauseOverlayView: View {
     }
 }
 
-struct ActionButtonView: View {
+struct ActionView: View {
     let text: String
     let iconName: String
     let color: Color
