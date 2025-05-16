@@ -3,105 +3,45 @@ import SwiftUI
 struct GameOverlayView: View {
     @EnvironmentObject private var appViewModel: AppViewModel
     @ObservedObject var gameViewModel: GameViewModel
+
     
     var body: some View {
         VStack {
-            HStack {
+            HStack(alignment: .top) {
                 // Кнопка паузы
-                Button {
+                CircleButtonView(iconName: "pause.circle", height: 50) {
                     appViewModel.pauseGame()
-                } label: {
-                    Image(systemName: "pause.circle.fill")
-                        .resizable()
-                        .frame(width: 40, height: 40)
-                        .foregroundColor(.white)
-                        .shadow(color: .black.opacity(0.5), radius: 3)
                 }
                 
                 Spacer()
                 
-                // Отображение монет
-                HStack {
-                    Text("\(gameViewModel.score)")
-                        .gameFont(20)
+                // Шкала прогресса уровня и выносливости
+                VStack(spacing: 5) {
+                    ProgressBarView(
+                        title: "Progress",
+                        value: 1.0 - (gameViewModel.timeRemaining / GameConstants.gameDuration),
+                        color: .grayLight,
+                        height: GameConstants.progressBarHeight
+                    )
+                    .frame(maxWidth: GameConstants.progressBarWidth)
                     
-                    Image("coin")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 30)
+                    ProgressBarView(
+                        title: "Stamina",
+                        value: gameViewModel.stamina / GameConstants.maxStamina,
+                        color: calculateStaminaColor(),
+                        height: GameConstants.staminaBarHeight
+                    )
+                    .frame(maxWidth: GameConstants.staminaBarWidth)
                 }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(
-                    Capsule()
-                        .fill(Color.black.opacity(0.5))
+                
+                Spacer()
+                
+                CoinBoardView(
+                    coins: gameViewModel.score,
+                    width: 120,
+                    height: 50
                 )
-                
-                Spacer()
-                
-                // Отображение статуса здоровья орла
-                HStack(spacing: 5) {
-                    Image(systemName: "heart.fill")
-                        .foregroundColor(gameViewModel.hasCollided ? .gray : .red)
-                        .font(.system(size: 22))
-                        .shadow(color: .black.opacity(0.5), radius: 2)
-                        .opacity(gameViewModel.isInvulnerable ? 0.5 : 1.0) // Мигание при неуязвимости
-                        .animation(gameViewModel.isInvulnerable ?
-                                   Animation.easeInOut(duration: 0.3).repeatForever(autoreverses: true) :
-                                   .default,
-                                   value: gameViewModel.isInvulnerable)
-                }
             }
-            .padding(.horizontal)
-            .padding(.top, 10)
-            
-            // Шкала прогресса уровня (время)
-            VStack(spacing: 5) {
-                HStack {
-                    Text("Прогресс")
-                        .gameFont(14)
-                    
-                    Spacer()
-                }
-                
-                ZStack(alignment: .leading) {
-                    // Фон полоски прогресса
-                    Rectangle()
-                        .fill(Color.black.opacity(0.5))
-                        .frame(height: GameConstants.progressBarHeight)
-                        .cornerRadius(GameConstants.progressBarHeight / 2)
-                    
-                    // Заполнение прогресса
-                    Rectangle()
-                        .fill(Color.eagleSecondary)
-                        .frame(width: calculateProgressWidth(), height: GameConstants.progressBarHeight)
-                        .cornerRadius(GameConstants.progressBarHeight / 2)
-                }
-                
-                // Шкала выносливости
-                HStack {
-                    Text("Выносливость")
-                        .gameFont(14)
-                    
-                    Spacer()
-                }
-                
-                ZStack(alignment: .leading) {
-                    // Фон полоски выносливости
-                    Rectangle()
-                        .fill(Color.black.opacity(0.5))
-                        .frame(height: GameConstants.staminaBarHeight)
-                        .cornerRadius(GameConstants.staminaBarHeight / 2)
-                    
-                    // Заполнение выносливости
-                    Rectangle()
-                        .fill(calculateStaminaColor())
-                        .frame(width: calculateStaminaWidth(), height: GameConstants.staminaBarHeight)
-                        .cornerRadius(GameConstants.staminaBarHeight / 2)
-                }
-            }
-            .padding(.horizontal)
-            .padding(.top, 5)
             
             Spacer()
             
@@ -109,39 +49,17 @@ struct GameOverlayView: View {
             HStack {
                 Spacer()
                 
-                Button(action: {
-                    gameViewModel.toggleAcceleration()
-                }) {
-                    Image(systemName: gameViewModel.acceleration ? "bolt.fill" : "bolt")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 30, height: 40)
-                        .foregroundColor(gameViewModel.acceleration ? .yellow : .white)
-                        .padding(15)
-                        .background(
-                            Circle()
-                                .fill(Color.black.opacity(0.5))
-                        )
-                        .shadow(color: gameViewModel.acceleration ? .yellow.opacity(0.7) : .clear, radius: 10)
-                }
-                .disabled(gameViewModel.stamina <= 0)
-                .opacity(gameViewModel.stamina <= 0 ? 0.5 : 1.0)
-                .padding()
+                AccelerationButtonView(
+                    isAccelerating: gameViewModel.acceleration,
+                    isEnabled: gameViewModel.stamina > 0,
+                    action: {
+                        gameViewModel.toggleAcceleration()
+                    }
+                )
             }
-            .padding(.bottom, 20)
+            .padding()
         }
-    }
-    
-    // Вычисление ширины полоски прогресса на основе оставшегося времени
-    private func calculateProgressWidth() -> CGFloat {
-        let progress = 1.0 - (gameViewModel.timeRemaining / GameConstants.gameDuration)
-        return UIScreen.main.bounds.width * progress * 0.9  // 90% от ширины экрана
-    }
-    
-    // Вычисление ширины полоски выносливости
-    private func calculateStaminaWidth() -> CGFloat {
-        let staminaPercentage = gameViewModel.stamina / GameConstants.maxStamina
-        return UIScreen.main.bounds.width * staminaPercentage * 0.9  // 90% от ширины экрана
+        .padding()
     }
     
     // Определение цвета шкалы выносливости в зависимости от уровня
@@ -149,7 +67,7 @@ struct GameOverlayView: View {
         let percentage = gameViewModel.stamina / GameConstants.maxStamina
         
         if percentage > 0.6 {
-            return .green
+            return .grayLight
         } else if percentage > 0.3 {
             return .yellow
         } else {
@@ -158,13 +76,80 @@ struct GameOverlayView: View {
     }
 }
 
+struct ProgressBarView: View {
+    let title: String
+    let value: Double
+    let color: Color
+    let height: CGFloat
+    
+    var body: some View {
+        VStack(spacing: 5) {
+            Text(title)
+                .gameFont(12)
+            
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    // Фон полоски прогресса
+                    Capsule()
+                        .foregroundStyle(.black.opacity(0.3))
+                        .frame(height: height)
+                        .overlay {
+                            Capsule()
+                                .stroke(.gray, lineWidth: 1)
+                        }
+                        .overlay(alignment: .top) {
+                            Capsule()
+                                .foregroundStyle(.white.opacity(0.4))
+                                .frame(height: 4)
+                                .padding(.horizontal, 10)
+                                .padding(.top, 3)
+                        }
+                        .shadow(radius: 2)
+                    
+                    // Заполнение прогресса
+                    Capsule()
+                        .foregroundStyle(color)
+                        .frame(width: max(0, min(geometry.size.width * value, geometry.size.width)), height: height * 0.8)
+                        .padding(.horizontal, 3)
+                }
+            }
+            .frame(height: height)
+        }
+    }
+}
+
+struct AccelerationButtonView: View {
+    let isAccelerating: Bool
+    let isEnabled: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Image(.buttonC)
+                .resizable()
+                .scaledToFit()
+                .frame(height: 70)
+                .overlay {
+                    Image(systemName: "chevron.forward.2")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 30, height: 40)
+                        .foregroundColor(isAccelerating ? .yellow : .gray)
+                        .shadow(color: isAccelerating ? .yellow.opacity(0.7) : .clear, radius: 10)
+                }
+        }
+        .buttonStyle(.plain)
+        .disabled(!isEnabled)
+        .opacity(isEnabled ? 1.0 : 0.5)
+    }
+}
+
 #Preview {
-    // Создаем тестовый ViewModel для предпросмотра
     let appVM = AppViewModel()
     let gameVM = GameViewModel()
     appVM.gameViewModel = gameVM
     
     return GameOverlayView(gameViewModel: gameVM)
         .environmentObject(appVM)
-        .background(Color.blue.opacity(0.3))  // Для визуализации границ в Preview
+        .background(Color.blue.opacity(0.3))
 }

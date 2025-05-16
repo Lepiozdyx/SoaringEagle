@@ -3,6 +3,8 @@ import SwiftUI
 struct PauseOverlayView: View {
     @EnvironmentObject private var appViewModel: AppViewModel
     @State private var isProcessingAction = false
+    @State private var overlayScale: CGFloat = 0.8
+    @State private var overlayOpacity: Double = 0
     
     var body: some View {
         ZStack {
@@ -11,19 +13,23 @@ struct PauseOverlayView: View {
                 .edgesIgnoringSafeArea(.all)
             
             // Контейнер для кнопок
-            VStack(spacing: 25) {
-                Text("ПАУЗА")
-                    .gameFont(40)
-                    .padding(.bottom, 20)
+            VStack(spacing: 10) {
+                Text("PAUSE")
+                    .gameFont(36)
+                    .padding(.vertical)
+                    .padding(.horizontal, 30)
+                    .background(
+                        Image(.labelFrame)
+                            .resizable()
+                    )
                 
-                Button {
-                    // Продолжение игры
+                // Continue button
+                ActionButtonView(title: "Continue", fontSize: 22, width: 250, height: 60) {
                     appViewModel.resumeGame()
-                } label: {
-                    ActionView(text: "Продолжить", iconName: "play.fill", color: .green)
                 }
                 
-                Button {
+                // Restart button
+                ActionButtonView(title: "Restart", fontSize: 22, width: 250, height: 60) {
                     // Предотвращаем многократное нажатие
                     guard !isProcessingAction else { return }
                     isProcessingAction = true
@@ -32,13 +38,11 @@ struct PauseOverlayView: View {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         appViewModel.restartLevel()
                     }
-                } label: {
-                    ActionView(text: "Начать заново", iconName: "arrow.counterclockwise", color: .orange)
                 }
-                .disabled(isProcessingAction)
                 .opacity(isProcessingAction ? 0.7 : 1.0)
                 
-                Button {
+                // Menu button
+                ActionButtonView(title: "Menu", fontSize: 22, width: 250, height: 60) {
                     // Предотвращаем многократное нажатие
                     guard !isProcessingAction else { return }
                     isProcessingAction = true
@@ -47,48 +51,23 @@ struct PauseOverlayView: View {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         appViewModel.goToMenu()
                     }
-                } label: {
-                    ActionView(text: "В меню", iconName: "house.fill", color: .red)
                 }
-                .disabled(isProcessingAction)
                 .opacity(isProcessingAction ? 0.7 : 1.0)
             }
             .padding(30)
             .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.eaglePrimary.opacity(0.8))
-                    .shadow(color: .black.opacity(0.5), radius: 10)
+                Image(.mainFrame)
+                    .resizable()
             )
+            .scaleEffect(overlayScale)
+            .opacity(overlayOpacity)
+            .onAppear {
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
+                    overlayScale = 1.0
+                    overlayOpacity = 1.0
+                }
+            }
         }
-    }
-}
-
-struct ActionView: View {
-    let text: String
-    let iconName: String
-    let color: Color
-    
-    var body: some View {
-        HStack {
-            Image(systemName: iconName)
-                .foregroundColor(.white)
-                .font(.system(size: 22))
-                .frame(width: 30)
-            
-            Text(text)
-                .gameFont(20)
-                .padding(.leading, 5)
-            
-            Spacer()
-        }
-        .padding(.vertical, 12)
-        .padding(.horizontal, 20)
-        .frame(width: 250)
-        .background(
-            Capsule()
-                .fill(color)
-        )
-        .shadow(color: color.opacity(0.5), radius: 5)
     }
 }
 

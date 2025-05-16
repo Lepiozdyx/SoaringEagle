@@ -4,6 +4,8 @@ struct DefeatOverlayView: View {
     @EnvironmentObject private var appViewModel: AppViewModel
     @State private var isAnimating = false
     @State private var isProcessingAction = false
+    @State private var overlayScale: CGFloat = 0.8
+    @State private var overlayOpacity: Double = 0
     
     var body: some View {
         ZStack {
@@ -12,9 +14,15 @@ struct DefeatOverlayView: View {
                 .edgesIgnoringSafeArea(.all)
             
             // Основной контент
-            VStack(spacing: 25) {
-                Text("ПОРАЖЕНИЕ")
-                    .gameFont(40)
+            VStack(spacing: 15) {
+                Text("DEFEAT")
+                    .gameFont(36)
+                    .padding(.vertical)
+                    .padding(.horizontal, 30)
+                    .background(
+                        Image(.labelFrame)
+                            .resizable()
+                    )
                     .shadow(color: .red.opacity(0.7), radius: 10)
                     .scaleEffect(isAnimating ? 1.1 : 1.0)
                     .animation(
@@ -22,13 +30,10 @@ struct DefeatOverlayView: View {
                             .repeatForever(autoreverses: true),
                         value: isAnimating
                     )
-                    .onAppear {
-                        isAnimating = true
-                    }
                 
                 // Кнопки
-                VStack(spacing: 20) {
-                    Button {
+                VStack(spacing: 15) {
+                    ActionButtonView(title: "Retry", fontSize: 22, width: 250, height: 60) {
                         // Предотвращаем многократное нажатие
                         guard !isProcessingAction else { return }
                         isProcessingAction = true
@@ -37,13 +42,9 @@ struct DefeatOverlayView: View {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                             appViewModel.restartLevel()
                         }
-                    } label: {
-                        ActionView(text: "Повторить", iconName: "arrow.counterclockwise", color: .orange)
                     }
-                    .disabled(isProcessingAction)
-                    .opacity(isProcessingAction ? 0.7 : 1.0)
                     
-                    Button {
+                    ActionButtonView(title: "Menu", fontSize: 22, width: 250, height: 60) {
                         // Предотвращаем многократное нажатие
                         guard !isProcessingAction else { return }
                         isProcessingAction = true
@@ -52,20 +53,26 @@ struct DefeatOverlayView: View {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                             appViewModel.goToMenu()
                         }
-                    } label: {
-                        ActionView(text: "В меню", iconName: "house.fill", color: .blue)
                     }
-                    .disabled(isProcessingAction)
-                    .opacity(isProcessingAction ? 0.7 : 1.0)
                 }
                 .padding(.top, 20)
+                .opacity(isProcessingAction ? 0.7 : 1.0)
             }
-            .padding(40)
+            .padding(30)
             .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.eaglePrimary.opacity(0.8))
-                    .shadow(color: .black.opacity(0.5), radius: 10)
+                Image(.mainFrame)
+                    .resizable()
             )
+            .scaleEffect(overlayScale)
+            .opacity(overlayOpacity)
+            .onAppear {
+                isAnimating = true
+                
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
+                    overlayScale = 1.0
+                    overlayOpacity = 1.0
+                }
+            }
         }
     }
 }

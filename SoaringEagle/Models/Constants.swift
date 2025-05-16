@@ -39,8 +39,10 @@ struct GameConstants {
     static let maxStamina: CGFloat = 100 // Максимальный запас выносливости
     
     // Константы для UI
-    static let progressBarHeight: CGFloat = 8 // Высота шкалы прогресса
-    static let staminaBarHeight: CGFloat = 8 // Высота шкалы выносливости
+    static let progressBarHeight: CGFloat = 18 // Высота шкалы прогресса
+    static let staminaBarHeight: CGFloat = 16 // Высота шкалы выносливости
+    static let progressBarWidth: CGFloat = 400
+    static let staminaBarWidth: CGFloat = 250
     
     // Награды за игровые действия
     static let levelCompletionReward: Int = 50 // Награда за прохождение уровня

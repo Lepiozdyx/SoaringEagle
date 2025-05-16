@@ -9,97 +9,83 @@ struct LevelSelectView: View {
         GridItem(.flexible()),
         GridItem(.flexible()),
         GridItem(.flexible()),
+        GridItem(.flexible()),
         GridItem(.flexible())
     ]
     
     @State private var titleScale: CGFloat = 0.8
     @State private var titleOpacity: Double = 0
-    @State private var gridOffset: CGFloat = 50
     @State private var gridOpacity: Double = 0
+    @State private var gridOffset: CGFloat = 50
     
     var body: some View {
-        GeometryReader { geometry in
-            ZStack {
-                // Background
-                Color.eagleBackground
-                    .edgesIgnoringSafeArea(.all)
-                
-                VStack {
-                    // Top bar with back button and coins counter
-                    HStack {
-                        Button {
-                            svm.play()
-                            appViewModel.navigateTo(.menu)
-                        } label: {
-                            Image(systemName: "arrow.left.circle.fill")
-                                .resizable()
-                                .frame(width: min(geometry.size.width * 0.05, 40), height: min(geometry.size.width * 0.05, 40))
-                                .foregroundColor(.white)
-                                .shadow(color: .black.opacity(0.5), radius: 3)
-                        }
-                        
-                        Spacer()
-                        
-                        // Coins counter
-                        HStack {
-                            Text("\(appViewModel.coins)")
-                                .gameFont(min(geometry.size.width * 0.025, 20))
-                            
-                            Image("coin")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: min(geometry.size.width * 0.035, 30))
-                        }
-                        .padding(.horizontal, 15)
-                        .padding(.vertical, 8)
-                        .background(
-                            Capsule()
-                                .fill(Color.black.opacity(0.5))
-                        )
+        ZStack {
+            // Background
+            BgView()
+            
+            VStack {
+                // Top bar with back button and coins counter
+                HStack(alignment: .top) {
+                    CircleButtonView(iconName: "arrowshape.left.fill", height: 60) {
+                        svm.play()
+                        appViewModel.navigateTo(.menu)
                     }
-                    .padding(.horizontal)
-                    .padding(.top)
                     
                     Spacer()
                     
                     // Title
-                    Text("ВЫБОР УРОВНЯ")
-                        .gameFont(min(geometry.size.width * 0.05, 40))
+                    Text("Select Level")
+                        .gameFont(34)
                         .scaleEffect(titleScale)
                         .opacity(titleOpacity)
+                        .padding(.vertical)
+                        .padding(.horizontal, 30)
+                        .background(
+                            Image(.labelFrame)
+                                .resizable()
+                        )
                     
                     Spacer()
                     
-                    // Level grid
-                    let gridWidth = min(geometry.size.width * 0.8, 600)
-                    
-                    LazyVGrid(columns: columns, spacing: min(geometry.size.width * 0.025, 20)) {
+                    // Coins counter
+                    CoinBoardView(
+                        coins: appViewModel.coins,
+                        width: 150,
+                        height: 60
+                    )
+                }
+                
+                Spacer()
+                
+                // Level grid container
+                VStack {
+                    LazyVGrid(columns: columns) {
                         ForEach(1...totalLevels, id: \.self) { level in
                             LevelTileView(
-                                level: level,
-                                tileSize: min(gridWidth / 5, 70)
+                                level: level
                             )
                             .environmentObject(appViewModel)
                         }
                     }
-                    .padding()
-                    .frame(maxWidth: gridWidth)
-                    .offset(y: gridOffset)
+                    .padding(.horizontal)
                     .opacity(gridOpacity)
-                    
-                    Spacer()
+                    .offset(y: gridOffset)
                 }
-                .onAppear {
-                    // Start animations with different delays
-                    withAnimation(.spring(response: 0.5, dampingFraction: 0.6).delay(0.1)) {
-                        titleScale = 1.0
-                        titleOpacity = 1.0
-                    }
-                    
-                    withAnimation(.easeOut(duration: 0.5).delay(0.3)) {
-                        gridOffset = 0
-                        gridOpacity = 1.0
-                    }
+                .frame(maxWidth: 700)
+                
+                Spacer()
+            }
+            .padding()
+            .onAppear {
+                // Start animations with different delays
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.6).delay(0.1)) {
+                    titleScale = 1.0
+                    titleOpacity = 1.0
+                }
+                
+                withAnimation(.easeOut(duration: 0.5).delay(0.3)) {
+                    gridOffset = 0
+                    gridOpacity = 1.0
                 }
             }
         }
@@ -111,7 +97,6 @@ struct LevelTileView: View {
     @StateObject private var svm = SettingsViewModel.shared
     
     let level: Int
-    let tileSize: CGFloat
     
     private var isLocked: Bool {
         return level > appViewModel.gameState.maxAvailableLevel
@@ -125,30 +110,44 @@ struct LevelTileView: View {
             }
         } label: {
             ZStack {
-                // Level tile background
-                RoundedRectangle(cornerRadius: tileSize * 0.2)
-                    .foregroundStyle(isLocked ? Color.gray.opacity(0.7) : Color.eagleSecondary)
-                    .frame(width: tileSize, height: tileSize)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: tileSize * 0.2)
-                            .stroke(Color.white, lineWidth: 3)
-                    )
-                    .shadow(color: isLocked ? .clear : .eagleSecondary.opacity(0.5), radius: 5)
-                
                 if isLocked {
                     // Lock icon for locked levels
-                    Image(systemName: "lock.fill")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: tileSize * 0.4, height: tileSize * 0.4)
-                        .foregroundColor(.white)
+                    VStack {
+                        Text("Level")
+                            .gameFont(14)
+                        
+                        Text("\(level)")
+                            .gameFont(18)
+                        
+                        Image(.buttonC)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 40)
+                            .overlay {
+                                Image(systemName: "xmark")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 20)
+                                    .foregroundColor(.red.opacity(0.8))
+                            }
+                    }
                 } else {
                     // Level number
-                    Text("\(level)")
-                        .gameFont(tileSize * 0.45)
-                        .shadow(color: .black, radius: 1)
+                    VStack {
+                        Text("Level")
+                            .gameFont(22)
+                        
+                        Text("\(level)")
+                            .gameFont(30)
+                    }
                 }
             }
+            .frame(width: 80, height: 90)
+            .padding()
+            .background(
+                Image(.buttonB)
+                    .resizable()
+            )
         }
         .disabled(isLocked)
     }

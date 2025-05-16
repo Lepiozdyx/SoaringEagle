@@ -12,133 +12,106 @@ struct ShopView: View {
     
     private let columns = [
         GridItem(.flexible()),
+        GridItem(.flexible()),
+        GridItem(.flexible()),
         GridItem(.flexible())
     ]
     
     var body: some View {
-        GeometryReader { geometry in
-            ZStack {
-                // Background
-                Color.eagleBackground
-                    .edgesIgnoringSafeArea(.all)
-                
-                VStack(spacing: min(geometry.size.height * 0.025, 20)) {
-                    // Top bar with back button and coins counter
-                    HStack {
-                        Button {
-                            svm.play()
-                            appViewModel.navigateTo(.menu)
-                        } label: {
-                            Image(systemName: "arrow.left.circle.fill")
-                                .resizable()
-                                .frame(width: min(geometry.size.width * 0.05, 40), height: min(geometry.size.width * 0.05, 40))
-                                .foregroundColor(.white)
-                                .shadow(color: .black.opacity(0.5), radius: 3)
-                        }
-                        
-                        Spacer()
-                        
-                        // Coins counter
-                        HStack {
-                            Text("\(appViewModel.coins)")
-                                .gameFont(min(geometry.size.width * 0.025, 20))
-                            
-                            Image("coin")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: min(geometry.size.width * 0.035, 30))
-                        }
-                        .padding(.horizontal, 15)
-                        .padding(.vertical, 8)
-                        .background(
-                            Capsule()
-                                .fill(Color.black.opacity(0.5))
-                        )
+        ZStack {
+            // Background
+            BgView()
+            
+            VStack {
+                // Top bar with back button and coins counter
+                HStack {
+                    CircleButtonView(iconName: "arrowshape.left.fill", height: 60) {
+                        svm.play()
+                        appViewModel.navigateTo(.menu)
                     }
                     
-                    // Title
-                    Text("МАГАЗИН")
-                        .gameFont(min(geometry.size.width * 0.05, 40))
-                        .scaleEffect(titleScale)
-                        .opacity(titleOpacity)
+                    Spacer()
                     
-                    // Tab selector
-                    TabSelectorView(
-                        selectedTab: $viewModel.currentTab,
-                        geometry: geometry
+                    // Coins counter
+                    CoinBoardView(
+                        coins: appViewModel.coins,
+                        width: 150,
+                        height: 60
                     )
-                    .opacity(contentOpacity)
-                    .offset(y: contentOffset)
-                    
-                    Spacer()
-                    
+                }
+                
+                Spacer()
+                
+                // Tab selector between shop categories
+                TabSelectorView(
+                    selectedTab: $viewModel.currentTab
+                )
+                .opacity(contentOpacity)
+                .offset(y: contentOffset)
+                
+                // Shop items grid
+                VStack {
                     // Shop items based on selected category
-                    VStack(spacing: min(geometry.size.height * 0.03, 30)) {
+                    LazyVGrid(columns: columns, spacing: 20) {
                         if viewModel.currentTab == .skins {
-                            LazyVGrid(columns: columns, spacing: min(geometry.size.width * 0.04, 30)) {
-                                ForEach(viewModel.availableSkins) { skin in
-                                    ShopItemView(
-                                        imageName: skin.imageName,
-                                        name: skin.name,
-                                        price: skin.price,
-                                        isPurchased: viewModel.isSkinPurchased(skin.id),
-                                        isSelected: viewModel.isSkinSelected(skin.id),
-                                        canAfford: appViewModel.coins >= skin.price,
-                                        geometry: geometry,
-                                        onBuy: {
-                                            viewModel.purchaseSkin(skin.id)
-                                        },
-                                        onSelect: {
-                                            viewModel.selectSkin(skin.id)
-                                        }
-                                    )
-                                }
+                            ForEach(viewModel.availableSkins) { skin in
+                                ShopItemView(
+                                    itemType: .skin,
+                                    imageName: skin.imageName,
+                                    name: skin.name,
+                                    price: skin.price,
+                                    isPurchased: viewModel.isSkinPurchased(skin.id),
+                                    isSelected: viewModel.isSkinSelected(skin.id),
+                                    canAfford: appViewModel.coins >= skin.price,
+                                    onBuy: {
+                                        viewModel.purchaseSkin(skin.id)
+                                    },
+                                    onSelect: {
+                                        viewModel.selectSkin(skin.id)
+                                    }
+                                )
                             }
-                            .padding(.horizontal)
                         } else {
-                            LazyVGrid(columns: columns, spacing: min(geometry.size.width * 0.04, 30)) {
-                                ForEach(viewModel.availableBackgrounds) { background in
-                                    ShopItemView(
-                                        imageName: background.imageName,
-                                        name: background.name,
-                                        price: background.price,
-                                        isPurchased: viewModel.isBackgroundPurchased(background.id),
-                                        isSelected: viewModel.isBackgroundSelected(background.id),
-                                        canAfford: appViewModel.coins >= background.price,
-                                        geometry: geometry,
-                                        onBuy: {
-                                            viewModel.purchaseBackground(background.id)
-                                        },
-                                        onSelect: {
-                                            viewModel.selectBackground(background.id)
-                                        }
-                                    )
-                                }
+                            ForEach(viewModel.availableBackgrounds) { background in
+                                ShopItemView(
+                                    itemType: .background,
+                                    imageName: background.imageName,
+                                    name: background.name,
+                                    price: background.price,
+                                    isPurchased: viewModel.isBackgroundPurchased(background.id),
+                                    isSelected: viewModel.isBackgroundSelected(background.id),
+                                    canAfford: appViewModel.coins >= background.price,
+                                    onBuy: {
+                                        viewModel.purchaseBackground(background.id)
+                                    },
+                                    onSelect: {
+                                        viewModel.selectBackground(background.id)
+                                    }
+                                )
                             }
-                            .padding(.horizontal)
                         }
                     }
-                    .frame(maxWidth: .infinity)
-                    .opacity(contentOpacity)
-                    .offset(y: contentOffset)
-                    
-                    Spacer()
                 }
-                .padding()
-                .onAppear {
-                    // Initialize viewModel on appear
-                    viewModel.appViewModel = appViewModel
-                    
-                    // Start animations with different delays
-                    withAnimation(.spring(response: 0.5, dampingFraction: 0.6).delay(0.1)) {
-                        titleScale = 1.0
-                        titleOpacity = 1.0
-                    }
-                    
-                    withAnimation(.easeOut(duration: 0.5).delay(0.3)) {
-                        contentOpacity = 1.0
-                        contentOffset = 0
-                    }
+                .frame(maxWidth: 600)
+                .opacity(contentOpacity)
+                .offset(y: contentOffset)
+                
+                Spacer()
+            }
+            .padding()
+            .onAppear {
+                // Initialize viewModel on appear
+                viewModel.appViewModel = appViewModel
+                
+                // Start animations with different delays
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.6).delay(0.1)) {
+                    titleScale = 1.0
+                    titleOpacity = 1.0
+                }
+                
+                withAnimation(.easeOut(duration: 0.5).delay(0.3)) {
+                    contentOpacity = 1.0
+                    contentOffset = 0
                 }
             }
         }
@@ -149,14 +122,12 @@ struct ShopView: View {
 struct TabSelectorView: View {
     @Binding var selectedTab: ShopViewModel.ShopTab
     @StateObject private var svm = SettingsViewModel.shared
-    let geometry: GeometryProxy
     
     var body: some View {
-        HStack(spacing: min(geometry.size.width * 0.025, 20)) {
+        HStack(spacing: 20) {
             TabButton(
-                title: "Скины",
+                title: "Skins",
                 isSelected: selectedTab == .skins,
-                geometry: geometry,
                 action: {
                     svm.play()
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
@@ -166,9 +137,8 @@ struct TabSelectorView: View {
             )
             
             TabButton(
-                title: "Фоны",
+                title: "Locations",
                 isSelected: selectedTab == .backgrounds,
-                geometry: geometry,
                 action: {
                     svm.play()
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
@@ -184,49 +154,36 @@ struct TabSelectorView: View {
 struct TabButton: View {
     let title: String
     let isSelected: Bool
-    let geometry: GeometryProxy
     let action: () -> Void
     
     var body: some View {
         Button(action: action) {
-            Capsule()
-                .fill(
-                    LinearGradient(
-                        colors: [Color.eagleSecondary.opacity(0.7), Color.eagleSecondary],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .frame(width: min(geometry.size.width * 0.2, 140), height: min(geometry.size.width * 0.05, 40))
-                .overlay(
-                    Capsule()
-                        .stroke(
-                            isSelected ? Color.yellow : Color.white.opacity(0.7),
-                            lineWidth: isSelected ? 5 : 2
-                        )
-                )
-                .shadow(
-                    color: isSelected ? Color.yellow.opacity(0.5) : Color.black.opacity(0.3),
-                    radius: isSelected ? 5 : 3
-                )
+            Image(.buttonM)
+                .resizable()
+                .frame(width: 120, height: 50)
                 .overlay(
                     Text(title)
-                        .gameFont(min(geometry.size.width * 0.02, 16))
+                        .gameFont(16)
                 )
-                .scaleEffect(isSelected ? 1.05 : 1.0)
+                .scaleEffect(isSelected ? 1.05 : 0.8)
         }
     }
 }
 
 // Shop item view
 struct ShopItemView: View {
+    enum ItemType {
+        case skin
+        case background
+    }
+    
+    let itemType: ItemType
     let imageName: String
     let name: String
     let price: Int
     let isPurchased: Bool
     let isSelected: Bool
     let canAfford: Bool
-    let geometry: GeometryProxy
     let onBuy: () -> Void
     let onSelect: () -> Void
     
@@ -234,46 +191,27 @@ struct ShopItemView: View {
     @State private var isAnimating = false
     
     var body: some View {
-        VStack(spacing: min(geometry.size.height * 0.015, 10)) {
-            ZStack {
-                // Item background
-                RadialGradient(
-                    colors: [
-                        Color.white,
-                        Color.eaglePrimary
-                    ],
-                    center: .center,
-                    startRadius: 0,
-                    endRadius: min(geometry.size.width * 0.075, 60)
+        VStack {
+            // Item image
+            Image(getPreviewImageName())
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: 110, maxHeight: 150)
+                .scaleEffect(isAnimating ? 1.05 : 1.0)
+                .animation(
+                    Animation.easeInOut(duration: 1.5)
+                        .repeatForever(autoreverses: true),
+                    value: isAnimating
                 )
-                
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(isSelected ? Color.yellow : Color.white.opacity(0.7), lineWidth: isSelected ? 5 : 2)
-                
-                // Item image
-                Image(imageName)
-                    .resizable()
-                    .scaledToFit()
-                    .padding(min(geometry.size.width * 0.025, 20))
-                    .scaleEffect(isAnimating ? 1.05 : 1.0)
-                    .animation(
-                        Animation.easeInOut(duration: 1.5)
-                            .repeatForever(autoreverses: true),
-                        value: isAnimating
-                    )
-            }
-            .frame(width: min(geometry.size.width * 0.15, 120), height: min(geometry.size.width * 0.15, 120))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .shadow(color: isSelected ? .yellow.opacity(0.5) : .black.opacity(0.5), radius: isSelected ? 8 : 4)
-            .onAppear {
-                isAnimating = true
-            }
-            
-            // Item name
-            Text(name)
-                .gameFont(min(geometry.size.width * 0.018, 14))
-                .multilineTextAlignment(.center)
-                .lineLimit(1)
+                .onAppear {
+                    isAnimating = true
+                }
+                .overlay(alignment: .bottom) {
+                    // Item name
+                    Text(name)
+                        .gameFont(14)
+                        .padding(.bottom)
+                }
             
             // Buy/select button
             Button {
@@ -286,40 +224,56 @@ struct ShopItemView: View {
                     onBuy()
                 }
             } label: {
-                ZStack {
-                    Capsule()
-                        .fill(buttonColor)
-                        .frame(width: min(geometry.size.width * 0.12, 100), height: min(geometry.size.width * 0.045, 36))
-                        .overlay(
-                            Capsule()
-                                .stroke(Color.white.opacity(0.7), lineWidth: 2)
-                        )
-                    
-                    if isPurchased {
-                        Text(isSelected ? "ВЫБРАНО" : "ВЫБРАТЬ")
-                            .gameFont(min(geometry.size.width * 0.015, 12))
-                    } else {
-                        HStack(spacing: min(geometry.size.width * 0.005, 4)) {
-                            Image("coin")
-                                .resizable()
-                                .frame(width: min(geometry.size.width * 0.025, 20), height: min(geometry.size.width * 0.025, 20))
-                            
-                            Text("\(price)")
-                                .gameFont(min(geometry.size.width * 0.015, 12))
+                Image(.buttonM)
+                    .resizable()
+                    .frame(maxWidth: 110, maxHeight: 36)
+                    .overlay {
+                        if isPurchased {
+                            Text(isSelected ? "Selected" : "Select")
+                                .gameFont(12)
+                        } else {
+                            HStack(spacing: 4) {
+                                Image("coin")
+                                    .resizable()
+                                    .frame(width: 20, height: 20)
+                                
+                                Text("\(price)")
+                                    .gameFont(12)
+                            }
                         }
                     }
-                }
             }
             .disabled((isPurchased && isSelected) || (!isPurchased && !canAfford))
             .opacity((isPurchased && isSelected) || (!isPurchased && !canAfford) ? 0.6 : 1)
         }
     }
     
-    private var buttonColor: Color {
-        if isPurchased {
-            return isSelected ? Color.green : Color.eagleSecondary
-        } else {
-            return canAfford ? Color.eagleSecondary : Color.gray
+    private func getPreviewImageName() -> String {
+        switch itemType {
+        case .skin:
+            if imageName.contains("eagle") {
+                return "eaglePreview"
+            } else if imageName.contains("hawk") {
+                return "hawkPreview"
+            } else if imageName.contains("stormbeak") {
+                return "stormbeakPreview"
+            } else if imageName.contains("skyfeather") {
+                return "skyfeatherPreview"
+            } else {
+                return "eaglePreview"
+            }
+        case .background:
+            if imageName.contains("sunset") {
+                return "sunsetPreview"
+            } else if imageName.contains("green") {
+                return "greenPreview"
+            } else if imageName.contains("winter") {
+                return "winterPreview"
+            } else if imageName.contains("night") {
+                return "nightPreview"
+            } else {
+                return "sunsetPreview"
+            }
         }
     }
 }
