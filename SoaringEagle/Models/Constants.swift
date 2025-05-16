@@ -10,7 +10,7 @@ struct GameConstants {
     static let gameDuration: TimeInterval = 30 // 30 секунд на уровень
     static let eagleInitialY: CGFloat = 0.5 // Начальная позиция орла (в процентах от высоты экрана)
     static let eagleHorizontalPosition: CGFloat = 0.15 // Позиция орла по горизонтали (в процентах от ширины экрана)
-    static let eagleSize = CGSize(width: 85, height: 45) // Размер орла
+    static let eagleSize = CGSize(width: 80, height: 40) // Размер орла
     
     // Константы для фона
     static let backgroundMovePointsPerSec: CGFloat = 150.0 // Скорость движения фона
@@ -22,9 +22,9 @@ struct GameConstants {
     
     // Размеры препятствий
     struct ObstacleSizes {
-        static let cloud = CGSize(width: 100, height: 60)
-        static let balloon = CGSize(width: 60, height: 80)
-        static let zeppelin = CGSize(width: 120, height: 70)
+        static let cloud = CGSize(width: 80, height: 50)
+        static let balloon = CGSize(width: 50, height: 70)
+        static let zeppelin = CGSize(width: 100, height: 60)
     }
     
     // Константы для бонусов
@@ -39,7 +39,7 @@ struct GameConstants {
     static let maxStamina: CGFloat = 100 // Максимальный запас выносливости
     
     // Константы для UI
-    static let progressBarHeight: CGFloat = 10 // Высота шкалы прогресса
+    static let progressBarHeight: CGFloat = 8 // Высота шкалы прогресса
     static let staminaBarHeight: CGFloat = 8 // Высота шкалы выносливости
     
     // Награды за игровые действия
@@ -49,12 +49,12 @@ struct GameConstants {
     static let dailyReward: Int = 10 // Ежедневная награда
     
     // Физические константы
-    static let eaglePhysicsBodyScale: CGFloat = 0.8 // Масштаб физического тела орла относительно спрайта
-    static let coinRotationDuration: TimeInterval = 2.0 // Время полного оборота монеты
+    static let eaglePhysicsBodyScale: CGFloat = 0.7 // Масштаб физического тела орла относительно спрайта
+    static let coinRotationDuration: TimeInterval = 1.0 // Время полного оборота монеты
     
     // Игровые механики
     static let maxLevels: Int = 10 // Общее количество уровней в игре
-    static let maxLives: Int = 3 // Максимальное количество жизней
+    static let maxLives: Int = 1 // Максимальное количество жизней
     static let eagleFlickerCount: Int = 6 // Количество миганий орла
 }
 

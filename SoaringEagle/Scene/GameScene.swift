@@ -361,9 +361,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             obstacle.size = GameConstants.ObstacleSizes.zeppelin
         }
         
-        // Случайная позиция по вертикали
-        let minY = obstacle.size.height / 2
-        let maxY = size.height - obstacle.size.height / 2
+        // Случайная позиция по вертикали с отступами
+        let minY = obstacle.size.height / 2 + 20 // Отступ снизу 20 пунктов
+        let maxY = size.height - obstacle.size.height / 2 - 40 // Отступ сверху 40 пунктов
         let randomY = CGFloat.random(in: minY...maxY)
         
         // Устанавливаем позицию препятствия за правым краем экрана
