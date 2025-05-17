@@ -10,6 +10,13 @@ struct UpgradesView: View {
     @State private var contentOpacity: Double = 0
     @State private var contentOffset: CGFloat = 20
     
+    private let columns = [
+        GridItem(.flexible()),
+        GridItem(.flexible()),
+        GridItem(.flexible()),
+        GridItem(.flexible())
+    ]
+    
     var body: some View {
         ZStack {
             // Background
@@ -49,24 +56,27 @@ struct UpgradesView: View {
                 
                 Spacer()
                 
-                // Upgrades content with scroll
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 20) {
-                        // Available upgrades list
-                        ForEach(viewModel.availableUpgrades) { upgrade in
-                            UpgradeItemView(
-                                upgrade: upgrade,
-                                onPurchase: {
-                                    svm.play()
-                                    viewModel.purchaseUpgrade(for: upgrade.id)
+                // Type upgrades grid
+                VStack {
+                    // Grid of upgrade types
+                    LazyVGrid(columns: columns, spacing: 20) {
+                        ForEach(viewModel.availableTypes) { type in
+                            TypeUpgradeItemView(
+                                type: type,
+                                isPurchased: viewModel.isTypePurchased(type.id),
+                                isSelected: viewModel.isTypeSelected(type.id),
+                                canAfford: appViewModel.coins >= type.price,
+                                onBuy: {
+                                    viewModel.purchaseType(type.id)
                                 },
-                                canAfford: appViewModel.coins >= upgrade.cost
+                                onSelect: {
+                                    viewModel.selectType(type.id)
+                                }
                             )
                         }
                     }
-                    .padding(.vertical)
                 }
-                .frame(maxWidth: 650)
+                .frame(maxWidth: 600)
                 .opacity(contentOpacity)
                 .offset(y: contentOffset)
                 
@@ -74,7 +84,7 @@ struct UpgradesView: View {
             }
             .padding()
             .onAppear {
-                // Set appViewModel reference
+                // Initialize viewModel on appear
                 viewModel.appViewModel = appViewModel
                 
                 // Start animations with different delays
@@ -92,108 +102,74 @@ struct UpgradesView: View {
     }
 }
 
-struct UpgradeItemView: View {
-    let upgrade: EagleUpgrade
-    let onPurchase: () -> Void
+// Type upgrade item view
+struct TypeUpgradeItemView: View {
+    let type: EagleTypeUpgrade
+    let isPurchased: Bool
+    let isSelected: Bool
     let canAfford: Bool
+    let onBuy: () -> Void
+    let onSelect: () -> Void
     
+    @StateObject private var svm = SettingsViewModel.shared
     @State private var isAnimating = false
     
     var body: some View {
-        VStack(spacing: 10) {
-            // Upgrade title
-            HStack {
-                Text(upgrade.name)
-                    .gameFont(20)
-                
-                Spacer()
-                
-                // Upgrade level
-                Text("Level \(upgrade.currentLevel)/\(upgrade.maxLevel)")
-                    .gameFont(16)
-            }
-            
-            // Upgrade description
-            Text(upgrade.description)
-                .gameFont(14)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            
-            // Upgrade progress indicator
-            HStack(spacing: 0) {
-                ForEach(0..<upgrade.maxLevel, id: \.self) { level in
-                    Rectangle()
-                        .fill(level < upgrade.currentLevel ? Color.green : Color.gray.opacity(0.5))
-                        .frame(height: 8)
-                        .cornerRadius(4)
+        VStack {
+            // Type image
+            Image(type.imageName)
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: 110, maxHeight: 150)
+                .scaleEffect(isAnimating ? 1.05 : 1.0)
+                .animation(
+                    Animation.easeInOut(duration: 1.5)
+                        .repeatForever(autoreverses: true),
+                    value: isAnimating
+                )
+                .onAppear {
+                    isAnimating = true
                 }
-            }
-            .padding(.vertical, 5)
+                .overlay(alignment: .bottom) {
+                    // Type name
+                    Text(type.name)
+                        .gameFont(14)
+                        .padding(.bottom)
+                }
             
-            // Upgrade button
+            // Buy/select button
             Button {
-                onPurchase()
+                svm.play()
+                if isPurchased {
+                    if !isSelected {
+                        onSelect()
+                    }
+                } else if canAfford {
+                    onBuy()
+                }
             } label: {
-                HStack {
-                    if upgrade.isMaxLevel {
-                        // Max level reached
-                        Text("MAX LEVEL")
-                            .gameFont(16)
-                            .padding(.vertical, 8)
-                            .padding(.horizontal, 20)
-                            .background(
-                                Capsule()
-                                    .fill(Color.gray.opacity(0.5))
-                                    .overlay(
-                                        Capsule()
-                                            .stroke(Color.green, lineWidth: 2)
-                                    )
-                            )
-                    } else {
-                        // Upgrade purchase button
-                        HStack {
-                            Text("UPGRADE")
-                                .gameFont(16)
-                            
+                Image(.buttonM)
+                    .resizable()
+                    .frame(maxWidth: 110, maxHeight: 36)
+                    .overlay {
+                        if isPurchased {
+                            Text(isSelected ? "Selected" : "Select")
+                                .gameFont(12)
+                        } else {
                             HStack(spacing: 4) {
-                                Text("\(upgrade.cost)")
-                                    .gameFont(16)
-                                
                                 Image("coin")
                                     .resizable()
-                                    .scaledToFit()
-                                    .frame(height: 20)
+                                    .frame(width: 20, height: 20)
+                                
+                                Text("\(type.price)")
+                                    .gameFont(12)
                             }
                         }
-                        .padding(.vertical, 8)
-                        .padding(.horizontal, 20)
-                        .background(
-                            Capsule()
-                                .fill(canAfford ? Color.eagleSecondary : Color.gray.opacity(0.5))
-                                .shadow(color: canAfford ? Color.black.opacity(0.5) : .clear, radius: 3)
-                                .scaleEffect(isAnimating && canAfford ? 1.05 : 1.0)
-                                .animation(
-                                    Animation.easeInOut(duration: 1.2)
-                                        .repeatForever(autoreverses: true),
-                                    value: isAnimating
-                                )
-                        )
                     }
-                }
             }
-            .disabled(upgrade.isMaxLevel || !canAfford)
-            .onAppear {
-                isAnimating = true
-            }
+            .disabled((isPurchased && isSelected) || (!isPurchased && !canAfford))
+            .opacity((isPurchased && isSelected) || (!isPurchased && !canAfford) ? 0.6 : 1)
         }
-        .padding(25)
-        .background(
-            RoundedRectangle(cornerRadius: 15)
-                .fill(Color.black.opacity(0.5))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 15)
-                        .stroke(Color.white.opacity(0.5), lineWidth: 1)
-                )
-        )
     }
 }
 

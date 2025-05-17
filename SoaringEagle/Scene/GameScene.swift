@@ -51,15 +51,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private let backgroundId: String
     private let skinId: String
     private var isGamePaused: Bool = false
+    private let typeId: String
     
     // Текстуры для анимации орла
     private var eagleTextures: [SKTexture] = []
-    
+
     // MARK: - Инициализация
-    
-    init(size: CGSize, backgroundId: String, skinId: String) {
+    init(size: CGSize, backgroundId: String, skinId: String, typeId: String) {
         self.backgroundId = backgroundId
         self.skinId = skinId
+        self.typeId = typeId
         super.init(size: size)
     }
     
@@ -524,11 +525,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     private func getEagleImageName(frame: Int) -> String {
-        // Получаем имя изображения орла в зависимости от выбранного скина и кадра анимации
-        let baseName = "eagle1"
-        let skinPrefix = skinId == "default" ? "" : "\(skinId)_"
+        // Получаем имя изображения орла в зависимости от выбранного скина, типа и кадра анимации
         let frameNumber = frame
         
-        return "\(skinPrefix)\(baseName)\(frameNumber)"
+        // Извлекаем тип из skinId (default) или используем явное значение для других скинов
+        if skinId == "default" {
+            // Получаем текущий тип из typeId, например "type2" -> "2"
+            let typeNumber = typeId.replacingOccurrences(of: "type", with: "")
+            return "eagle\(typeNumber)\(frameNumber)"
+        } else {
+            let typeNumber = typeId.replacingOccurrences(of: "type", with: "")
+            return "\(skinId)\(typeNumber)\(frameNumber)"
+        }
     }
 }

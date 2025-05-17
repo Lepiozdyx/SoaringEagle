@@ -2,63 +2,44 @@ import SwiftUI
 import Combine
 
 class UpgradesViewModel: ObservableObject {
-    @Published var availableUpgrades: [EagleUpgrade]
+    @Published var availableTypes: [EagleTypeUpgrade] = EagleTypeUpgrade.availableTypes
     
     weak var appViewModel: AppViewModel?
     private var cancellables = Set<AnyCancellable>()
     
-    private let upgradesKey = "eagleUpgrades"
-    
-    init() {
-        // Загрузка улучшений из UserDefaults
-        if let savedData = UserDefaults.standard.data(forKey: upgradesKey),
-           let loadedUpgrades = try? JSONDecoder().decode([EagleUpgrade].self, from: savedData) {
-            availableUpgrades = loadedUpgrades
-        } else {
-            // Если нет сохраненных улучшений, используем дефолтные
-            availableUpgrades = EagleUpgrade.availableUpgrades
-        }
+    func isTypePurchased(_ id: String) -> Bool {
+        guard let gameState = appViewModel?.gameState else { return false }
+        return id == "type1" || gameState.purchasedTypes.contains(id)
     }
     
-    func purchaseUpgrade(for upgradeId: String) {
-        guard let appViewModel = appViewModel else { return }
+    func isTypeSelected(_ id: String) -> Bool {
+        guard let gameState = appViewModel?.gameState else { return false }
+        return gameState.currentTypeId == id
+    }
+    
+    func purchaseType(_ id: String) {
+        guard let appViewModel = appViewModel,
+              let type = EagleTypeUpgrade.availableTypes.first(where: { $0.id == id }),
+              appViewModel.coins >= type.price else { return }
         
-        if let index = availableUpgrades.firstIndex(where: { $0.id == upgradeId }) {
-            let upgrade = availableUpgrades[index]
-            
-            // Проверяем, достиг ли апгрейд максимального уровня
-            if upgrade.isMaxLevel {
-                return
-            }
-            
-            // Проверяем, достаточно ли монет для покупки
-            let cost = upgrade.cost
-            if appViewModel.coins >= cost {
-                appViewModel.addCoins(-cost)
-                
-                // Увеличиваем уровень улучшения
-                availableUpgrades[index].currentLevel += 1
-                
-                // Сохраняем изменения
-                saveUpgrades()
-                
-                objectWillChange.send()
-            }
+        appViewModel.addCoins(-type.price)
+        
+        if !appViewModel.gameState.purchasedTypes.contains(id) {
+            appViewModel.gameState.purchasedTypes.append(id)
         }
+        
+        appViewModel.saveGameState()
+        
+        selectType(id)
     }
     
-    // Возвращает множитель улучшения для конкретного типа
-    func getUpgradeMultiplier(for upgradeId: String) -> Double {
-        if let upgrade = availableUpgrades.first(where: { $0.id == upgradeId }) {
-            // Рассчитываем множитель на основе уровня улучшения (5% за уровень)
-            return 1.0 + Double(upgrade.currentLevel) * 0.05
-        }
-        return 1.0 // Дефолтный множитель без улучшений
-    }
-    
-    private func saveUpgrades() {
-        if let encodedData = try? JSONEncoder().encode(availableUpgrades) {
-            UserDefaults.standard.set(encodedData, forKey: upgradesKey)
-        }
+    func selectType(_ id: String) {
+        guard let appViewModel = appViewModel,
+              isTypePurchased(id) else { return }
+        
+        appViewModel.gameState.currentTypeId = id
+        appViewModel.saveGameState()
+        
+        objectWillChange.send()
     }
 }

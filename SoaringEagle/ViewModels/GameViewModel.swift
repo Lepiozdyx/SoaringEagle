@@ -43,8 +43,9 @@ class GameViewModel: ObservableObject {
     func setupScene(size: CGSize) -> GameScene {
         let backgroundId = appViewModel?.gameState.currentBackgroundId ?? "default"
         let skinId = appViewModel?.gameState.currentSkinId ?? "default"
+        let typeId = appViewModel?.gameState.currentTypeId ?? "type1"
         
-        let scene = GameScene(size: size, backgroundId: backgroundId, skinId: skinId)
+        let scene = GameScene(size: size, backgroundId: backgroundId, skinId: skinId, typeId: typeId)
         scene.scaleMode = .aspectFill
         scene.gameDelegate = self
         gameScene = scene

@@ -50,7 +50,7 @@ struct EagleSkinItem: Identifiable, Codable, Equatable {
     
     // Доступные скины орла в магазине
     static let availableSkins: [EagleSkinItem] = [
-        EagleSkinItem(id: "eagle", name: "eagle", imageName: "eagle11", price: 0),
+        EagleSkinItem(id: "default", name: "eagle", imageName: "eagle11", price: 0),
         EagleSkinItem(id: "hawk", name: "hawk", imageName: "hawk11", price: 100),
         EagleSkinItem(id: "stormbeak", name: "stormbeak", imageName: "stormbeak11", price: 200),
         EagleSkinItem(id: "skyfeather", name: "skyfeather", imageName: "skyfeather11", price: 300)
@@ -58,6 +58,31 @@ struct EagleSkinItem: Identifiable, Codable, Equatable {
     
     static func getSkin(id: String) -> EagleSkinItem {
         return availableSkins.first { $0.id == id } ?? availableSkins[0]
+    }
+}
+
+// Новая структура для типов улучшений скинов
+struct EagleTypeUpgrade: Identifiable, Codable, Equatable {
+    let id: String
+    let name: String
+    let typeNumber: Int
+    let price: Int
+    let imageName: String
+    
+    static func == (lhs: EagleTypeUpgrade, rhs: EagleTypeUpgrade) -> Bool {
+        return lhs.id == rhs.id
+    }
+    
+    // Доступные типы улучшений скинов
+    static let availableTypes: [EagleTypeUpgrade] = [
+        EagleTypeUpgrade(id: "type1", name: "Basic", typeNumber: 1, price: 0, imageName: "type1"),
+        EagleTypeUpgrade(id: "type2", name: "Advanced", typeNumber: 2, price: 20, imageName: "type2"),
+        EagleTypeUpgrade(id: "type3", name: "Elite", typeNumber: 3, price: 40, imageName: "type3"),
+        EagleTypeUpgrade(id: "type4", name: "Ultimate", typeNumber: 4, price: 60, imageName: "type4")
+    ]
+    
+    static func getType(id: String) -> EagleTypeUpgrade {
+        return availableTypes.first { $0.id == id } ?? availableTypes[0]
     }
 }
 
@@ -115,43 +140,4 @@ struct Achievement: Identifiable, Codable, Equatable {
     static func byId(_ id: String) -> Achievement? {
         return allAchievements.first { $0.id == id }
     }
-}
-
-// Структура для улучшений орла
-struct EagleUpgrade: Identifiable, Codable {
-    let id: String
-    let name: String
-    let description: String
-    let maxLevel: Int
-    var currentLevel: Int = 0
-    let baseCost: Int
-    let costMultiplier: Double
-    
-    var cost: Int {
-        return Int(Double(baseCost) * pow(costMultiplier, Double(currentLevel)))
-    }
-    
-    var isMaxLevel: Bool {
-        return currentLevel >= maxLevel
-    }
-    
-    // Доступные улучшения
-    static let availableUpgrades: [EagleUpgrade] = [
-        EagleUpgrade(
-            id: "stamina",
-            name: "Выносливость",
-            description: "Увеличивает запас выносливости",
-            maxLevel: 5,
-            baseCost: 50,
-            costMultiplier: 1.5
-        ),
-        EagleUpgrade(
-            id: "speed",
-            name: "Скорость",
-            description: "Увеличивает скорость ускорения",
-            maxLevel: 5,
-            baseCost: 50,
-            costMultiplier: 1.5
-        ),
-    ]
 }

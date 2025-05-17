@@ -16,6 +16,10 @@ struct GameState: Codable {
     var purchasedBackgrounds: [String] = ["default"]
     var currentBackgroundId: String = "default"
     
+    // Новые поля для типов улучшений
+    var purchasedTypes: [String] = ["type1"]
+    var currentTypeId: String = "type1"
+    
     var tutorialCompleted: Bool = false
     
     var levelsCompleted: Int = 0
