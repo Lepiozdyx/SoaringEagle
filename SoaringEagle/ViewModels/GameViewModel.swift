@@ -25,6 +25,7 @@ class GameViewModel: ObservableObject {
     private var gameTimer: Timer?
     private var invulnerabilityTimer: Timer?
     private var cancellables = Set<AnyCancellable>()
+    private var currentLevel: Int = 1 // Хранит текущий уровень игры
     
     // MARK: - Публичные свойства
     weak var appViewModel: AppViewModel?
@@ -41,11 +42,23 @@ class GameViewModel: ObservableObject {
     // MARK: - Публичные методы
     
     func setupScene(size: CGSize) -> GameScene {
+        // Получаем текущий уровень из AppViewModel
+        if let appVM = appViewModel {
+            currentLevel = appVM.gameLevel
+        }
+        
         let backgroundId = appViewModel?.gameState.currentBackgroundId ?? "default"
         let skinId = appViewModel?.gameState.currentSkinId ?? "default"
         let typeId = appViewModel?.gameState.currentTypeId ?? "type1"
         
-        let scene = GameScene(size: size, backgroundId: backgroundId, skinId: skinId, typeId: typeId)
+        // Создаем игровую сцену с передачей уровня
+        let scene = GameScene(
+            size: size,
+            backgroundId: backgroundId,
+            skinId: skinId,
+            typeId: typeId,
+            level: currentLevel
+        )
         scene.scaleMode = .aspectFill
         scene.gameDelegate = self
         gameScene = scene
@@ -82,6 +95,11 @@ class GameViewModel: ObservableObject {
     }
     
     func resetGame() {
+        // Обновляем текущий уровень из AppViewModel
+        if let appVM = appViewModel {
+            currentLevel = appVM.gameLevel
+        }
+        
         // Отменяем все текущие таймеры и оверлеи
         gameTimer?.invalidate()
         invulnerabilityTimer?.invalidate()

@@ -16,9 +16,27 @@ struct GameConstants {
     static let backgroundMovePointsPerSec: CGFloat = 100.0 // Скорость движения фона
     
     // Константы для препятствий
-    static let obstacleSpawnInterval: TimeInterval = 1.5 // Интервал появления препятствий
-    static let obstacleMinSpeed: CGFloat = 150 // Минимальная скорость препятствий (поинтов в секунду)
-    static let obstacleMaxSpeed: CGFloat = 300 // Максимальная скорость препятствий (поинтов в секунду)
+    static let obstacleBaseSpawnInterval: TimeInterval = 1.5 // Базовый интервал появления препятствий
+    static let obstacleBaseMinSpeed: CGFloat = 150 // Базовая минимальная скорость препятствий
+    static let obstacleBaseMaxSpeed: CGFloat = 300 // Базовая максимальная скорость препятствий
+    
+    // Расчет интервала появления препятствий в зависимости от уровня
+    static func obstacleSpawnInterval(for level: Int) -> TimeInterval {
+        let reduction = min(0.7, Double(level - 1) * 0.08) // Максимальное уменьшение интервала 0.7
+        return max(0.8, obstacleBaseSpawnInterval - reduction) // Минимальный интервал 0.8
+    }
+    
+    // Расчет минимальной скорости препятствий в зависимости от уровня
+    static func obstacleMinSpeed(for level: Int) -> CGFloat {
+        let increase = CGFloat(level - 1) * 15.0 // Увеличиваем на 15 единиц за каждый уровень
+        return obstacleBaseMinSpeed + increase
+    }
+    
+    // Расчет максимальной скорости препятствий в зависимости от уровня
+    static func obstacleMaxSpeed(for level: Int) -> CGFloat {
+        let increase = CGFloat(level - 1) * 30.0 // Увеличиваем на 30 единиц за каждый уровень
+        return obstacleBaseMaxSpeed + increase
+    }
     
     // Размеры препятствий
     struct ObstacleSizes {

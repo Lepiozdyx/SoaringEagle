@@ -44,7 +44,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var lastCoinSpawnTime: TimeInterval = 0
     
     // Скорость игры и ускорение
-    private var baseSpeed: CGFloat = GameConstants.obstacleMinSpeed
+    private var baseSpeed: CGFloat = GameConstants.obstacleBaseMinSpeed
     private var accelerationEnabled: Bool = false
     
     // Параметры для синхронизации с вью-моделью
@@ -53,14 +53,32 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var isGamePaused: Bool = false
     private let typeId: String
     
+    // Текущий уровень игры
+    private let level: Int
+    
+    // Расчетные значения скоростей и интервалов в зависимости от уровня
+    private var obstacleSpawnInterval: TimeInterval
+    private var obstacleMinSpeed: CGFloat
+    private var obstacleMaxSpeed: CGFloat
+    
     // Текстуры для анимации орла
     private var eagleTextures: [SKTexture] = []
 
     // MARK: - Инициализация
-    init(size: CGSize, backgroundId: String, skinId: String, typeId: String) {
+    init(size: CGSize, backgroundId: String, skinId: String, typeId: String, level: Int) {
         self.backgroundId = backgroundId
         self.skinId = skinId
         self.typeId = typeId
+        self.level = level
+        
+        // Инициализация скоростей и интервалов на основе уровня
+        self.obstacleSpawnInterval = GameConstants.obstacleSpawnInterval(for: level)
+        self.obstacleMinSpeed = GameConstants.obstacleMinSpeed(for: level)
+        self.obstacleMaxSpeed = GameConstants.obstacleMaxSpeed(for: level)
+        
+        // Установка базовой скорости на основе минимальной скорости для уровня
+        self.baseSpeed = self.obstacleMinSpeed
+        
         super.init(size: size)
     }
     
@@ -216,7 +234,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         eagle.position = CGPoint(x: eagleX, y: eagleY)
         
         // Сбрасываем скорость
-        baseSpeed = GameConstants.obstacleMinSpeed
+        baseSpeed = obstacleMinSpeed // Используем скорость соответствующую текущему уровню
         accelerationEnabled = false
         
         // Запускаем игру заново - делаем паузу в любом случае,
@@ -331,8 +349,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     private func spawnObjectsIfNeeded(at currentTime: TimeInterval) {
-        // Спавн препятствий
-        if currentTime - lastObstacleSpawnTime > GameConstants.obstacleSpawnInterval {
+        // Спавн препятствий с интервалом, зависящим от уровня
+        if currentTime - lastObstacleSpawnTime > obstacleSpawnInterval {
             spawnObstacle()
             lastObstacleSpawnTime = currentTime
             
