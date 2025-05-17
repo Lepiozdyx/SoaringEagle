@@ -13,7 +13,7 @@ struct GameConstants {
     static let eagleSize = CGSize(width: 80, height: 40) // Размер орла
     
     // Константы для фона
-    static let backgroundMovePointsPerSec: CGFloat = 150.0 // Скорость движения фона
+    static let backgroundMovePointsPerSec: CGFloat = 100.0 // Скорость движения фона
     
     // Константы для препятствий
     static let obstacleSpawnInterval: TimeInterval = 1.5 // Интервал появления препятствий

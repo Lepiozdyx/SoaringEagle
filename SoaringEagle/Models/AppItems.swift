@@ -68,6 +68,7 @@ struct EagleTypeUpgrade: Identifiable, Codable, Equatable {
     let typeNumber: Int
     let price: Int
     let imageName: String
+    let rates: Int
     
     static func == (lhs: EagleTypeUpgrade, rhs: EagleTypeUpgrade) -> Bool {
         return lhs.id == rhs.id
@@ -75,10 +76,10 @@ struct EagleTypeUpgrade: Identifiable, Codable, Equatable {
     
     // Доступные типы улучшений скинов
     static let availableTypes: [EagleTypeUpgrade] = [
-        EagleTypeUpgrade(id: "type1", name: "Basic", typeNumber: 1, price: 0, imageName: "type1"),
-        EagleTypeUpgrade(id: "type2", name: "Advanced", typeNumber: 2, price: 20, imageName: "type2"),
-        EagleTypeUpgrade(id: "type3", name: "Elite", typeNumber: 3, price: 40, imageName: "type3"),
-        EagleTypeUpgrade(id: "type4", name: "Ultimate", typeNumber: 4, price: 60, imageName: "type4")
+        EagleTypeUpgrade(id: "type1", name: "Basic", typeNumber: 1, price: 0, imageName: "type1", rates: 0),
+        EagleTypeUpgrade(id: "type2", name: "Advanced", typeNumber: 2, price: 20, imageName: "type2", rates: 2),
+        EagleTypeUpgrade(id: "type3", name: "Elite", typeNumber: 3, price: 40, imageName: "type3", rates: 4),
+        EagleTypeUpgrade(id: "type4", name: "Ultimate", typeNumber: 4, price: 60, imageName: "type4", rates: 6)
     ]
     
     static func getType(id: String) -> EagleTypeUpgrade {

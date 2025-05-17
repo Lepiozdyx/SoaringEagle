@@ -136,6 +136,17 @@ struct TypeUpgradeItemView: View {
                         .gameFont(14)
                         .padding(.bottom)
                 }
+                .overlay(alignment: .topLeading) {
+                    // Type name
+                    VStack(alignment: .leading) {
+                        Text("Speed + \(type.rates)%")
+                            .gameFont(8)
+                        
+                        Text("Stamina + \(type.rates)%")
+                            .gameFont(8)
+                    }
+                    .padding()
+                }
             
             // Buy/select button
             Button {
