@@ -10,6 +10,7 @@ class GameViewModel: ObservableObject {
     @Published var isPaused: Bool = false
     @Published var showVictoryOverlay: Bool = false
     @Published var showDefeatOverlay: Bool = false
+    @Published var showTournamentOverlay: Bool = false // Новый флаг для турнирного оверлея
     
     // Параметры выносливости и ускорения
     @Published var stamina: CGFloat = GameConstants.maxStamina
@@ -26,6 +27,7 @@ class GameViewModel: ObservableObject {
     private var invulnerabilityTimer: Timer?
     private var cancellables = Set<AnyCancellable>()
     private var currentLevel: Int = 1 // Хранит текущий уровень игры
+    private var isTournamentMode: Bool = false // Флаг турнирного режима
     
     // MARK: - Публичные свойства
     weak var appViewModel: AppViewModel?
@@ -42,22 +44,24 @@ class GameViewModel: ObservableObject {
     // MARK: - Публичные методы
     
     func setupScene(size: CGSize) -> GameScene {
-        // Получаем текущий уровень из AppViewModel
+        // Получаем текущий уровень и режим из AppViewModel
         if let appVM = appViewModel {
             currentLevel = appVM.gameLevel
+            isTournamentMode = appVM.isTournamentMode
         }
         
         let backgroundId = appViewModel?.gameState.currentBackgroundId ?? "default"
         let skinId = appViewModel?.gameState.currentSkinId ?? "default"
         let typeId = appViewModel?.gameState.currentTypeId ?? "type1"
         
-        // Создаем игровую сцену с передачей уровня
+        // Создаем игровую сцену с передачей уровня и флага турнирного режима
         let scene = GameScene(
             size: size,
             backgroundId: backgroundId,
             skinId: skinId,
             typeId: typeId,
-            level: currentLevel
+            level: isTournamentMode ? currentLevel : currentLevel, // В турнирном режиме используем текущий уровень
+            isTournament: isTournamentMode
         )
         scene.scaleMode = .aspectFill
         scene.gameDelegate = self
@@ -66,8 +70,8 @@ class GameViewModel: ObservableObject {
     }
     
     func togglePause(_ paused: Bool) {
-        // Если есть активный оверлей победы или поражения, не переключаем паузу
-        if (showVictoryOverlay || showDefeatOverlay) {
+        // Если есть активный оверлей победы, поражения или турнира, не переключаем паузу
+        if (showVictoryOverlay || showDefeatOverlay || showTournamentOverlay) {
             return
         }
         
@@ -95,9 +99,10 @@ class GameViewModel: ObservableObject {
     }
     
     func resetGame() {
-        // Обновляем текущий уровень из AppViewModel
+        // Обновляем текущий уровень и режим из AppViewModel
         if let appVM = appViewModel {
             currentLevel = appVM.gameLevel
+            isTournamentMode = appVM.isTournamentMode
         }
         
         // Отменяем все текущие таймеры и оверлеи
@@ -106,6 +111,7 @@ class GameViewModel: ObservableObject {
         
         showVictoryOverlay = false
         showDefeatOverlay = false
+        showTournamentOverlay = false
         
         // Очищаем и перезапускаем игру в синхронизированном порядке
         DispatchQueue.main.async { [weak self] in
@@ -126,6 +132,7 @@ class GameViewModel: ObservableObject {
             // Сбрасываем все визуальные состояния
             self.showVictoryOverlay = false
             self.showDefeatOverlay = false
+            self.showTournamentOverlay = false
             
             // Важно: сначала сбрасываем сцену
             self.gameScene?.resetGame()
@@ -194,7 +201,7 @@ class GameViewModel: ObservableObject {
         }
     }
     
-    // Новый метод для обработки неуязвимости
+    // Метод для обработки неуязвимости
     private func startInvulnerabilityTimer() {
         invulnerabilityTimer?.invalidate()
         
@@ -220,19 +227,27 @@ class GameViewModel: ObservableObject {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             
-            if win {
-                self.showVictoryOverlay = true
-                if !self.hasCollided {
-                    self.consecutiveNoCollisionLevels += 1
-                } else {
-                    self.consecutiveNoCollisionLevels = 0
-                }
+            if self.isTournamentMode {
+                // В турнирном режиме всегда показываем турнирный оверлей
+                self.showTournamentOverlay = true
                 self.appViewModel?.checkAchievements(gameViewModel: self)
-                self.appViewModel?.showVictory()
+                // Не нужно вызывать showVictory/showDefeat, так как монеты уже начислены
             } else {
-                self.showDefeatOverlay = true
-                self.consecutiveNoCollisionLevels = 0
-                self.appViewModel?.showDefeat()
+                // В обычном режиме показываем стандартные оверлеи
+                if win {
+                    self.showVictoryOverlay = true
+                    if !self.hasCollided {
+                        self.consecutiveNoCollisionLevels += 1
+                    } else {
+                        self.consecutiveNoCollisionLevels = 0
+                    }
+                    self.appViewModel?.checkAchievements(gameViewModel: self)
+                    self.appViewModel?.showVictory()
+                } else {
+                    self.showDefeatOverlay = true
+                    self.consecutiveNoCollisionLevels = 0
+                    self.appViewModel?.showDefeat()
+                }
             }
             
             self.objectWillChange.send()
@@ -250,9 +265,12 @@ class GameViewModel: ObservableObject {
 // MARK: - GameSceneDelegate
 extension GameViewModel: GameSceneDelegate {
     func didCollectCoin() {
-        score += GameConstants.coinValue
+        // В турнирном режиме монеты стоят больше
+        let coinValue = isTournamentMode ? GameConstants.tournamentCoinValue : GameConstants.coinValue
+        
+        score += coinValue
         coinCollectedCount += 1
-        appViewModel?.addCoins(GameConstants.coinValue)
+        appViewModel?.addCoins(coinValue)
         
         DispatchQueue.main.async { [weak self] in
             self?.objectWillChange.send()

@@ -56,6 +56,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // Текущий уровень игры
     private let level: Int
     
+    // Флаг турнирного режима
+    private let isTournament: Bool
+    
     // Расчетные значения скоростей и интервалов в зависимости от уровня
     private var obstacleSpawnInterval: TimeInterval
     private var obstacleMinSpeed: CGFloat
@@ -65,16 +68,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var eagleTextures: [SKTexture] = []
 
     // MARK: - Инициализация
-    init(size: CGSize, backgroundId: String, skinId: String, typeId: String, level: Int) {
+    init(size: CGSize, backgroundId: String, skinId: String, typeId: String, level: Int, isTournament: Bool = false) {
         self.backgroundId = backgroundId
         self.skinId = skinId
         self.typeId = typeId
         self.level = level
+        self.isTournament = isTournament
         
-        // Инициализация скоростей и интервалов на основе уровня
-        self.obstacleSpawnInterval = GameConstants.obstacleSpawnInterval(for: level)
-        self.obstacleMinSpeed = GameConstants.obstacleMinSpeed(for: level)
-        self.obstacleMaxSpeed = GameConstants.obstacleMaxSpeed(for: level)
+        // Инициализация скоростей и интервалов на основе уровня или турнирного режима
+        if isTournament {
+            // Используем специальные настройки для турнирного режима
+            self.obstacleSpawnInterval = GameConstants.tournamentSpawnInterval
+            self.obstacleMinSpeed = GameConstants.tournamentMinSpeed
+            self.obstacleMaxSpeed = GameConstants.tournamentMaxSpeed
+        } else {
+            // Используем настройки, основанные на уровне
+            self.obstacleSpawnInterval = GameConstants.obstacleSpawnInterval(for: level)
+            self.obstacleMinSpeed = GameConstants.obstacleMinSpeed(for: level)
+            self.obstacleMaxSpeed = GameConstants.obstacleMaxSpeed(for: level)
+        }
         
         // Установка базовой скорости на основе минимальной скорости для уровня
         self.baseSpeed = self.obstacleMinSpeed

@@ -10,6 +10,9 @@ class AppViewModel: ObservableObject {
     @Published var gameViewModel: GameViewModel?
     @Published var achievementViewModel: AchievementViewModel?
     
+    // Флаг для отслеживания турнирного режима
+    @Published var isTournamentMode: Bool = false
+    
     init() {
         self.gameState = GameState.load()
         self.coins = gameState.coins
@@ -22,6 +25,11 @@ class AppViewModel: ObservableObject {
     
     var currentSkin: String {
         return gameState.currentSkinId
+    }
+    
+    // Проверка, достаточно ли монет для турнирного режима
+    var canPlayTournament: Bool {
+        return coins >= GameConstants.tournamentEntryFee
     }
     
     func navigateTo(_ screen: AppScreen) {
@@ -40,6 +48,27 @@ class AppViewModel: ObservableObject {
         gameLevel = levelToStart
         gameState.currentLevel = levelToStart
         
+        // Сбрасываем флаг турнирного режима при обычном запуске игры
+        isTournamentMode = false
+        
+        gameViewModel = GameViewModel()
+        gameViewModel?.appViewModel = self
+        navigateTo(.game)
+        saveGameState()
+    }
+    
+    // Новый метод для запуска турнирного режима
+    func startTournament() {
+        // Проверяем наличие достаточного количества монет
+        guard canPlayTournament else { return }
+        
+        // Списываем монеты за вход
+        addCoins(-GameConstants.tournamentEntryFee)
+        
+        // Устанавливаем флаг турнирного режима
+        isTournamentMode = true
+        
+        // Создаем GameViewModel с турнирным режимом
         gameViewModel = GameViewModel()
         gameViewModel?.appViewModel = self
         navigateTo(.game)
@@ -72,8 +101,12 @@ class AppViewModel: ObservableObject {
         
         gameState.levelsCompleted += 1
         
-        // Добавляем монеты за победу на уровне
-        addCoins(GameConstants.levelCompletionReward)
+        // Не добавляем монеты за победу в турнирном режиме здесь,
+        // так как они начисляются непосредственно во время игры
+        if !isTournamentMode {
+            // Добавляем монеты за победу на уровне только в обычном режиме
+            addCoins(GameConstants.levelCompletionReward)
+        }
         
         // Проверка достижения "Мастер-орёл"
         if gameState.maxCompletedLevel >= GameConstants.maxLevels {
@@ -97,6 +130,7 @@ class AppViewModel: ObservableObject {
             if let gameVM = self.gameViewModel {
                 gameVM.showVictoryOverlay = false
                 gameVM.showDefeatOverlay = false
+                gameVM.showTournamentOverlay = false // Добавляем скрытие турнирного оверлея
                 
                 // Важно сбросить состояние паузы до вызова resetGame
                 gameVM.isPaused = false
@@ -129,6 +163,7 @@ class AppViewModel: ObservableObject {
             if let gameVM = self.gameViewModel {
                 gameVM.showVictoryOverlay = false
                 gameVM.showDefeatOverlay = false
+                gameVM.showTournamentOverlay = false // Добавляем скрытие турнирного оверлея
                 
                 // Важно сбросить состояние паузы до вызова resetGame
                 gameVM.isPaused = false

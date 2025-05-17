@@ -22,12 +22,21 @@ struct GameView: View {
                 if let gameVM = appViewModel.gameViewModel {
                     Group {
                         // Pause overlay
-                        if gameVM.isPaused && !gameVM.showVictoryOverlay && !gameVM.showDefeatOverlay {
+                        if gameVM.isPaused && !gameVM.showVictoryOverlay && !gameVM.showDefeatOverlay && !gameVM.showTournamentOverlay {
                             PauseOverlayView()
                                 .environmentObject(appViewModel)
                                 .transition(.opacity)
                                 .animation(.easeInOut(duration: 0.3), value: gameVM.isPaused)
                                 .zIndex(90)
+                        }
+                        
+                        // Tournament overlay
+                        if gameVM.showTournamentOverlay {
+                            TournamentOverlayView()
+                                .environmentObject(appViewModel)
+                                .transition(.opacity)
+                                .animation(.easeInOut(duration: 0.3), value: gameVM.showTournamentOverlay)
+                                .zIndex(100)
                         }
                         
                         // Victory overlay

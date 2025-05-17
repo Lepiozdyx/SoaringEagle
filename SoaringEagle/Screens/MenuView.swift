@@ -60,7 +60,10 @@ struct MenuView: View {
                             isPaid: true
                         ) {
                             svm.play()
-                            // pay and go tournament mode action
+                            // Запускаем турнирный режим, если есть достаточно монет
+                            if appViewModel.canPlayTournament {
+                                appViewModel.startTournament()
+                            }
                         }
                         
                         // Mini-games view

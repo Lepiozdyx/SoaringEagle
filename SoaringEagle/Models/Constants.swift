@@ -20,6 +20,13 @@ struct GameConstants {
     static let obstacleBaseMinSpeed: CGFloat = 150 // Базовая минимальная скорость препятствий
     static let obstacleBaseMaxSpeed: CGFloat = 300 // Базовая максимальная скорость препятствий
     
+    // Константы для турнирного режима
+    static let tournamentSpawnInterval: TimeInterval = 0.6 // Интервал появления препятствий в турнире
+    static let tournamentMinSpeed: CGFloat = 450 // Минимальная скорость препятствий в турнире
+    static let tournamentMaxSpeed: CGFloat = 600 // Максимальная скорость препятствий в турнире
+    static let tournamentCoinValue: Int = 20 // Стоимость монеты в турнирном режиме
+    static let tournamentEntryFee: Int = 100 // Стоимость входа в турнирный режим
+    
     // Расчет интервала появления препятствий в зависимости от уровня
     static func obstacleSpawnInterval(for level: Int) -> TimeInterval {
         let reduction = min(0.7, Double(level - 1) * 0.08) // Максимальное уменьшение интервала 0.7
