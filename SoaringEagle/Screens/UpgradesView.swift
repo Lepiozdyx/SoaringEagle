@@ -32,20 +32,6 @@ struct UpgradesView: View {
                     
                     Spacer()
                     
-                    // Title
-                    Text("Upgrades")
-                        .gameFont(34)
-                        .scaleEffect(titleScale)
-                        .opacity(titleOpacity)
-                        .padding(.vertical)
-                        .padding(.horizontal, 30)
-                        .background(
-                            Image(.labelFrame)
-                                .resizable()
-                        )
-                    
-                    Spacer()
-                    
                     // Coins counter
                     CoinBoardView(
                         coins: appViewModel.coins,

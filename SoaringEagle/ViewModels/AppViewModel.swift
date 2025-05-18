@@ -246,4 +246,17 @@ class AppViewModel: ObservableObject {
         // Если никогда не получал награду, то можно получить
         return true
     }
+
+    func startMiniGame(_ gameType: MiniGameType) {
+        switch gameType {
+        case .guessNumber:
+            navigateTo(.guessNumber)
+        case .memoryCards:
+            navigateTo(.memoryCards)
+        case .sequence:
+            navigateTo(.sequence)
+        case .maze:
+            navigateTo(.maze)
+        }
+    }
 }

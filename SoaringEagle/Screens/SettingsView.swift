@@ -39,18 +39,6 @@ struct SettingsView: View {
                 
                 Spacer()
                 
-                // Title
-                Text("Settings")
-                    .gameFont(34)
-                    .scaleEffect(titleScale)
-                    .opacity(titleOpacity)
-                    .padding(.vertical)
-                    .padding(.horizontal, 30)
-                    .background(
-                        Image(.labelFrame)
-                            .resizable()
-                    )
-                
                 // Settings block
                 VStack(spacing: 25) {
                     SettingRow(

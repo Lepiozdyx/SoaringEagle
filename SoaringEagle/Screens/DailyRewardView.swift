@@ -37,18 +37,6 @@ struct DailyRewardView: View {
                 
                 Spacer()
                 
-                // Title
-                Text("Rewards")
-                    .gameFont(34)
-                    .scaleEffect(titleScale)
-                    .opacity(titleOpacity)
-                    .padding(.vertical)
-                    .padding(.horizontal, 30)
-                    .background(
-                        Image(.labelFrame)
-                            .resizable()
-                    )
-                
                 // Main reward content
                 VStack(spacing: 10) {
                     ZStack {

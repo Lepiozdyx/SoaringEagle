@@ -74,7 +74,7 @@ struct MenuView: View {
                             height: 90
                         ) {
                             svm.play()
-                            //                            appViewModel.navigateTo(.minigames)
+                            appViewModel.navigateTo(.miniGames)
                         }
                         
                         // Play

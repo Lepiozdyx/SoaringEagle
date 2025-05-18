@@ -11,6 +11,12 @@ enum AppScreen: CaseIterable {
     case achievements
     case dailyReward
     case upgrades
+    
+    case miniGames
+    case guessNumber
+    case memoryCards
+    case sequence
+    case maze
 }
 
 // Структура для элементов фона

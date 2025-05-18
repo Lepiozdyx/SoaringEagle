@@ -40,6 +40,26 @@ struct ContentView: View {
             case .upgrades:
                 UpgradesView()
                     .environmentObject(appViewModel)
+                
+            case .miniGames:
+                MiniGamesView()
+                    .environmentObject(appViewModel)
+                
+            case .guessNumber:
+                GuessNumberView()
+                    .environmentObject(appViewModel)
+                
+            case .memoryCards:
+                MemoryCardsView()
+                    .environmentObject(appViewModel)
+                
+            case .sequence:
+                SequenceGameView()
+                    .environmentObject(appViewModel)
+                
+            case .maze:
+                MazeGameView()
+                    .environmentObject(appViewModel)
             }
         }
         .onAppear {

@@ -35,18 +35,6 @@ struct AchievementView: View {
                 
                 Spacer()
                 
-                // Title
-                Text("Achievements")
-                    .gameFont(34)
-                    .scaleEffect(titleScale)
-                    .opacity(titleOpacity)
-                    .padding(.vertical)
-                    .padding(.horizontal, 30)
-                    .background(
-                        Image(.labelFrame)
-                            .resizable()
-                    )
-                
                 // Main content
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 10) {
@@ -62,7 +50,7 @@ struct AchievementView: View {
                             )
                         }
                     }
-                    .padding(.horizontal)
+                    .padding(.vertical)
                     .opacity(contentOpacity)
                     .offset(y: contentOffset)
                 }
