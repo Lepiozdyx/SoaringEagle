@@ -25,13 +25,4 @@ enum MiniGameType: String, Codable, CaseIterable, Identifiable {
         case .maze: return 30
         }
     }
-    
-    var imageName: String {
-        switch self {
-        case .guessNumber: return "gameNumbers"
-        case .memoryCards: return "gameMemory"
-        case .sequence: return "gameSequence"
-        case .maze: return "maze"
-        }
-    }
 }

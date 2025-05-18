@@ -27,7 +27,7 @@ struct GuessNumberView: View {
                     
                     // Current guess display
                     ZStack {
-                        Image(.buttonM)
+                        Image(.labelFrame)
                             .resizable()
                             .frame(width: 150, height: 60)
                         
@@ -51,24 +51,38 @@ struct GuessNumberView: View {
                         }
                     
                     // Slider
-                    HStack(spacing: 4) {
-                        Text("0")
-                            .gameFont(12)
+                    HStack {
+                        CircleButtonView(iconName: "minus", height: 60) {
+                            if sliderValue > 0 {
+                                sliderValue -= 1
+                            }
+                        }
                         
-                        Slider(value: $sliderValue, in: 0...999, step: 1)
-                            .accentColor(.gray)
-                            .padding(.horizontal)
+                        HStack(spacing: 4) {
+                            Text("0")
+                                .gameFont(12)
+                            
+                            Slider(value: $sliderValue, in: 0...999, step: 1)
+                                .accentColor(.gray)
+                                .padding(.horizontal)
+                            
+                            Text("999")
+                                .gameFont(12)
+                        }
+                        .frame(width: 300)
+                        .padding(.horizontal, 30)
+                        .padding(.vertical)
+                        .background(
+                            Image(.labelFrame)
+                                .resizable()
+                        )
                         
-                        Text("999")
-                            .gameFont(12)
+                        CircleButtonView(iconName: "plus", height: 60) {
+                            if sliderValue < 999 {
+                                sliderValue += 1
+                            }
+                        }
                     }
-                    .frame(width: 330)
-                    .padding(.horizontal, 30)
-                    .padding(.vertical)
-                    .background(
-                        Image(.labelFrame)
-                            .resizable()
-                    )
                     
                     // Action buttons
                     if case .playing = viewModel.gameState {
@@ -80,36 +94,33 @@ struct GuessNumberView: View {
                     // Continue button after incorrect guess
                     if case .guessed(let correct, _) = viewModel.gameState, !correct {
                         ActionButtonView(title: "Continue", fontSize: 20, width: 200, height: 60) {
-                            viewModel.continueGame()
+                            viewModel.continueGame(withNewGuess: Int(sliderValue))
                         }
                     }
                     
                     // Success buttons
                     if case .guessed(let correct, _) = viewModel.gameState, correct {
-                        VStack(spacing: 20) {
-                            // Coins animation when success
+                        HStack(spacing: 20) {
                             HStack {
                                 Text("+\(MiniGameType.guessNumber.reward)")
-                                    .gameFont(30)
+                                    .gameFont(26)
                                 
                                 Image(.coin)
                                     .resizable()
                                     .scaledToFit()
-                                    .frame(height: 35)
+                                    .frame(height: 30)
                             }
                             .scaleEffect(hasAwardedCoins ? 1.3 : 1.0)
                             .animation(.spring(response: 0.5, dampingFraction: 0.6), value: hasAwardedCoins)
                             
-                            HStack(spacing: 20) {
-                                ActionButtonView(title: "Play Again", fontSize: 18, width: 180, height: 60) {
-                                    hasAwardedCoins = false
-                                    viewModel.startNewGame()
-                                    sliderValue = 500
-                                }
-                                
-                                ActionButtonView(title: "Menu", fontSize: 18, width: 180, height: 60) {
-                                    appViewModel.navigateTo(.miniGames)
-                                }
+                            ActionButtonView(title: "Play Again", fontSize: 18, width: 150, height: 50) {
+                                hasAwardedCoins = false
+                                viewModel.startNewGame()
+                                sliderValue = 500
+                            }
+                            
+                            ActionButtonView(title: "Menu", fontSize: 18, width: 150, height: 50) {
+                                appViewModel.navigateTo(.miniGames)
                             }
                         }
                     }

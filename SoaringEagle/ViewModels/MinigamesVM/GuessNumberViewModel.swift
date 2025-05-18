@@ -33,7 +33,13 @@ class GuessNumberViewModel: ObservableObject {
         }
     }
     
-    func continueGame() {
+    func continueGame(withNewGuess newGuess: Int? = nil) {
         gameState = .playing
+        
+        if let newGuess = newGuess {
+            DispatchQueue.main.async {
+                self.makeGuess(newGuess)
+            }
+        }
     }
 }
