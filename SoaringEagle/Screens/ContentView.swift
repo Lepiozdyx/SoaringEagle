@@ -12,22 +12,37 @@ struct ContentView: View {
             case .menu:
                 MenuView()
                     .environmentObject(appViewModel)
+                    .onAppear {
+                        OrientationManager.shared.lockLandscape()
+                    }
                 
             case .levelSelect:
                 LevelSelectView()
                     .environmentObject(appViewModel)
+                    .onAppear {
+                        OrientationManager.shared.lockLandscape()
+                    }
                 
             case .game:
                 GameView()
                     .environmentObject(appViewModel)
+                    .onAppear {
+                        OrientationManager.shared.lockLandscape()
+                    }
                 
             case .settings:
                 SettingsView()
                     .environmentObject(appViewModel)
+                    .onAppear {
+                        OrientationManager.shared.lockLandscape()
+                    }
                 
             case .shop:
                 ShopView()
                     .environmentObject(appViewModel)
+                    .onAppear {
+                        OrientationManager.shared.lockLandscape()
+                    }
                 
             case .achievements:
                 AchievementView()
@@ -36,40 +51,57 @@ struct ContentView: View {
             case .dailyReward:
                 DailyRewardView()
                     .environmentObject(appViewModel)
+                    .onAppear {
+                        OrientationManager.shared.lockLandscape()
+                    }
                 
             case .upgrades:
                 UpgradesView()
                     .environmentObject(appViewModel)
+                    .onAppear {
+                        OrientationManager.shared.lockLandscape()
+                    }
                 
             case .miniGames:
                 MiniGamesView()
                     .environmentObject(appViewModel)
+                    .onAppear {
+                        OrientationManager.shared.lockLandscape()
+                    }
                 
             case .guessNumber:
                 GuessNumberView()
                     .environmentObject(appViewModel)
+                    .onAppear {
+                        OrientationManager.shared.lockLandscape()
+                    }
                 
             case .memoryCards:
                 MemoryCardsView()
                     .environmentObject(appViewModel)
+                    .onAppear {
+                        OrientationManager.shared.lockLandscape()
+                    }
                 
             case .sequence:
                 SequenceGameView()
                     .environmentObject(appViewModel)
+                    .onAppear {
+                        OrientationManager.shared.lockLandscape()
+                    }
                 
             case .maze:
                 MazeGameView()
                     .environmentObject(appViewModel)
+                    .onAppear {
+                        OrientationManager.shared.lockLandscape()
+                    }
             }
         }
         .onAppear {
-            // Запускаем музыку при появлении
             if settings.musicIsOn {
                 settings.playMusic()
             }
-            
-            // Устанавливаем начальную ориентацию экрана (ландшафтная)
-            setOrientationLandscape()
         }
         .onChange(of: phase) { newPhase in
             switch newPhase {
@@ -81,10 +113,6 @@ struct ContentView: View {
                 break
             }
         }
-    }
-    
-    private func setOrientationLandscape() {
-        AppDelegate.orientationLock = .landscape
     }
 }
 

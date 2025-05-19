@@ -6,16 +6,8 @@ struct SoaringEagleApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            SourceView()
+                .preferredColorScheme(.light)
         }
-    }
-}
-
-// AppDelegate для настройки ориентации экрана
-class AppDelegate: NSObject, UIApplicationDelegate {
-    static var orientationLock: UIInterfaceOrientationMask = .landscape
-    
-    func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
-        return AppDelegate.orientationLock
     }
 }

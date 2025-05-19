@@ -33,8 +33,8 @@ import AVFoundation
     private var soundPlayer: AVAudioPlayer?
     private let soundKey = "eagleSound"
     private let musicKey = "eagleMusic"
-    private let soundResourceName = "buttonSound"
-    private let musicResourceName = "backgroundMusic"
+    private let soundResourceName = "bSound"
+    private let musicResourceName = "bTheme"
     
     private init() {
         self.soundIsOn = true
