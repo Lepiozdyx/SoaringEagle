@@ -6,13 +6,10 @@ struct MazeGameView: View {
     @StateObject private var viewModel = MazeGameViewModel()
     @StateObject private var svm = SettingsViewModel.shared
     
-    @State private var isWin: Bool = false
-    @State private var gameScene: MazeScene = {
-        let scene = MazeScene(size: UIScreen.main.bounds.size)
-        scene.scaleMode = .aspectFit
-        return scene
-    }()
+    // Контроллер для доступа к сцене
+    @StateObject private var sceneController = MazeSceneController()
     
+    @State private var isWin: Bool = false
     @State private var contentOpacity: Double = 0
     @State private var contentOffset: CGFloat = 20
     
@@ -30,117 +27,128 @@ struct MazeGameView: View {
                     }
                     
                     Spacer()
-                    
-                    // Coins counter
-                    CoinBoardView(
-                        coins: appViewModel.coins,
-                        width: 150,
-                        height: 60
-                    )
                 }
                 
                 Spacer()
                 
-                // Maze Game с контролами
-                HStack {
-                    // Лабиринт с оптимизированным масштабированием
-                    MazeViewContainer(scene: gameScene, isWin: $isWin, appViewModel: appViewModel)
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .opacity(contentOpacity)
-                        .offset(y: contentOffset)
-                    
-                    // Controls overlay - сохраняем только кнопки управления
-                    if !isWin {
-                        VStack {
-                            Spacer()
-                            
-                            // Control buttons
-                            VStack(spacing: 4) {
-                                Button {
-                                    svm.play()
-                                    gameScene.moveUp()
-                                } label: {
-                                    Image(systemName: "chevron.up")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 30, height: 30)
-                                        .foregroundColor(.black.opacity(0.7))
-                                        .padding()
-                                        .background(
-                                            Image(.buttonC)
-                                                .resizable()
-                                                .scaledToFit()
-                                                .frame(height: 60)
-                                        )
-                                }
+                GeometryReader { geometry in
+                    HStack(spacing: 0) {
+                        Spacer()
+                        Spacer()
+                        
+                        let mazeSize = CGSize(
+                            width: min(geometry.size.width * 0.65, geometry.size.height * 0.9),
+                            height: min(geometry.size.width * 0.65, geometry.size.height * 0.9)
+                        )
+                        
+                        // Контейнер лабиринта
+                        MazeViewContainer(
+                            size: mazeSize,
+                            isWin: $isWin,
+                            appViewModel: appViewModel,
+                            controller: sceneController
+                        )
+                        .frame(width: mazeSize.width, height: mazeSize.height)
+                        .background {
+                            Color.grayLight
+                        }
+                        
+                        // Право: Элементы управления
+                        if !isWin {
+                            VStack {
+                                Spacer()
                                 
-                                HStack(spacing: 50) {
+                                // Control buttons
+                                VStack(spacing: 4) {
+                                    // Кнопка вверх
                                     Button {
                                         svm.play()
-                                        gameScene.moveLeft()
+                                        sceneController.moveUp()
                                     } label: {
-                                        Image(systemName: "chevron.left")
+                                        Image(.buttonC)
                                             .resizable()
                                             .scaledToFit()
-                                            .frame(width: 30, height: 30)
-                                            .foregroundColor(.black.opacity(0.7))
-                                            .padding()
-                                            .background(
-                                                Image(.buttonC)
+                                            .frame(height: 60)
+                                            .overlay {
+                                                Image(systemName: "chevron.up")
                                                     .resizable()
                                                     .scaledToFit()
-                                                    .frame(height: 60)
-                                            )
+                                                    .frame(width: 30)
+                                                    .foregroundColor(.black)
+                                            }
                                     }
                                     
-                                    Button {
-                                        svm.play()
-                                        gameScene.moveRight()
-                                    } label: {
-                                        Image(systemName: "chevron.right")
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 30, height: 30)
-                                            .foregroundColor(.black.opacity(0.7))
-                                            .padding()
-                                            .background(
-                                                Image(.buttonC)
-                                                    .resizable()
-                                                    .scaledToFit()
-                                                    .frame(height: 60)
-                                            )
-                                    }
-                                }
-                                
-                                Button {
-                                    svm.play()
-                                    gameScene.moveDown()
-                                } label: {
-                                    Image(systemName: "chevron.down")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 30, height: 30)
-                                        .foregroundColor(.black.opacity(0.7))
-                                        .padding()
-                                        .background(
+                                    // Кнопки влево и вправо
+                                    HStack(spacing: 40) {
+                                        Button {
+                                            svm.play()
+                                            sceneController.moveLeft()
+                                        } label: {
                                             Image(.buttonC)
                                                 .resizable()
                                                 .scaledToFit()
                                                 .frame(height: 60)
-                                        )
+                                                .overlay {
+                                                    Image(systemName: "chevron.left")
+                                                        .resizable()
+                                                        .scaledToFit()
+                                                        .frame(height: 30)
+                                                        .foregroundColor(.black)
+                                                }
+                                        }
+                                        
+                                        Button {
+                                            svm.play()
+                                            sceneController.moveRight()
+                                        } label: {
+                                            Image(.buttonC)
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(height: 60)
+                                                .overlay {
+                                                    Image(systemName: "chevron.right")
+                                                        .resizable()
+                                                        .scaledToFit()
+                                                        .frame(height: 30)
+                                                        .foregroundColor(.black)
+                                                }
+                                        }
+                                    }
+                                    
+                                    // Кнопка вниз
+                                    Button {
+                                        svm.play()
+                                        sceneController.moveDown()
+                                    } label: {
+                                        Image(.buttonC)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(height: 60)
+                                            .overlay {
+                                                Image(systemName: "chevron.down")
+                                                    .resizable()
+                                                    .scaledToFit()
+                                                    .frame(width: 30)
+                                                    .foregroundColor(.black)
+                                            }
+                                    }
                                 }
+                                .padding(.bottom, 50)
                             }
-                            .padding(.bottom, 50)
+                            .frame(width: geometry.size.width * 0.3)
                         }
+                        
+                        Spacer()
                     }
                 }
+                .opacity(contentOpacity)
+                .offset(y: contentOffset)
                 
                 Spacer()
             }
             .padding()
             
-            // Win overlay (без изменений)
+            // Win overlay
             if isWin {
                 ZStack {
                     Color.black.opacity(0.7)
@@ -152,7 +160,7 @@ struct MazeGameView: View {
                             .padding(.vertical)
                             .padding(.horizontal, 30)
                             .background(
-                                Image(.labelFrame)
+                                Image("labelFrame")
                                     .resizable()
                             )
                             .shadow(color: .green.opacity(0.7), radius: 10)
@@ -177,7 +185,7 @@ struct MazeGameView: View {
                         VStack(spacing: 15) {
                             ActionButtonView(title: "Play Again", fontSize: 22, width: 250, height: 60) {
                                 svm.play()
-                                gameScene.restartGame()
+                                sceneController.restartGame()
                                 isWin = false
                                 viewModel.restartGame()
                             }
@@ -190,7 +198,7 @@ struct MazeGameView: View {
                     }
                     .padding(30)
                     .background(
-                        Image(.mainFrame)
+                        Image("mainFrame")
                             .resizable()
                     )
                 }
@@ -214,4 +222,60 @@ struct MazeGameView: View {
 #Preview {
     MazeGameView()
         .environmentObject(AppViewModel())
+}
+
+// MARK: - MazeViewContainer
+struct MazeViewContainer: UIViewRepresentable {
+    let size: CGSize
+    @Binding var isWin: Bool
+    weak var appViewModel: AppViewModel?
+    @ObservedObject var controller: MazeSceneController
+    
+    func makeUIView(context: Context) -> SKView {
+        let skView = SKView(frame: CGRect(origin: .zero, size: size))
+        skView.preferredFramesPerSecond = 60
+        skView.showsFPS = false
+        skView.showsNodeCount = false
+        skView.showsDrawCount = false
+        skView.showsQuadCount = false
+        skView.ignoresSiblingOrder = true
+        
+        skView.backgroundColor = .clear
+        
+        return skView
+    }
+    
+    func updateUIView(_ skView: SKView, context: Context) {
+        if skView.scene == nil {
+            let scene = MazeScene(size: size, rows: 16, cols: 16)
+            scene.scaleMode = .aspectFill
+            scene.isWinHandler = {
+                DispatchQueue.main.async {
+                    isWin = true
+                    appViewModel?.addCoins(MazeGameConstants.reward)
+                }
+            }
+            
+            controller.scene = scene
+            
+            skView.presentScene(scene)
+        } else if skView.bounds.size != size {
+            skView.bounds = CGRect(origin: .zero, size: size)
+            
+            if let _ = skView.scene as? MazeScene {
+                let newScene = MazeScene(size: size, rows: 8, cols: 8)
+                newScene.scaleMode = .aspectFill
+                newScene.isWinHandler = {
+                    DispatchQueue.main.async {
+                        isWin = true
+                        appViewModel?.addCoins(MazeGameConstants.reward)
+                    }
+                }
+                
+                controller.scene = newScene
+                
+                skView.presentScene(newScene)
+            }
+        }
+    }
 }
