@@ -29,6 +29,7 @@ struct CircleButtonView: View {
                     .foregroundStyle(.black.opacity(0.6))
             }
         }
+        .withSound()
     }
 }
 

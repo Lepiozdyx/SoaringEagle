@@ -2,7 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject private var appViewModel: AppViewModel
-    @StateObject private var settings = SettingsViewModel.shared
+    @ObservedObject private var settings = SettingsViewModel.shared
     
     @State private var titleScale: CGFloat = 0.8
     @State private var titleOpacity: Double = 0
@@ -21,7 +21,6 @@ struct SettingsView: View {
                 // Top bar with back button
                 HStack {
                     CircleButtonView(iconName: "arrowshape.left.fill", height: 60) {
-                        settings.play()
                         appViewModel.navigateTo(.menu)
                     }
                     

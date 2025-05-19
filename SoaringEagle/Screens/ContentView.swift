@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var appViewModel = AppViewModel()
-    @StateObject private var settings = SettingsViewModel.shared
+    @ObservedObject private var settings = SettingsViewModel.shared
     
     @Environment(\.scenePhase) private var phase
     

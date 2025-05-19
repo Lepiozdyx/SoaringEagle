@@ -42,6 +42,7 @@ struct ActionButtonView: View {
                 }
             }
         }
+        .withSound()
     }
 }
 
