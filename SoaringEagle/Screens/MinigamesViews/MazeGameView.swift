@@ -9,7 +9,7 @@ struct MazeGameView: View {
     @State private var isWin: Bool = false
     @State private var gameScene: MazeScene = {
         let scene = MazeScene(size: UIScreen.main.bounds.size)
-        scene.scaleMode = .resizeFill
+        scene.scaleMode = .aspectFit
         return scene
     }()
     
@@ -41,14 +41,16 @@ struct MazeGameView: View {
                 
                 Spacer()
                 
-                // Maze Game
+                // Maze Game с контролами
                 HStack {
+                    // Лабиринт с оптимизированным масштабированием
                     MazeViewContainer(scene: gameScene, isWin: $isWin, appViewModel: appViewModel)
-                        .frame(height: UIScreen.main.bounds.height)
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .opacity(contentOpacity)
                         .offset(y: contentOffset)
                     
-                    // Controls overlay
+                    // Controls overlay - сохраняем только кнопки управления
                     if !isWin {
                         VStack {
                             Spacer()
@@ -138,7 +140,7 @@ struct MazeGameView: View {
             }
             .padding()
             
-            // Win overlay
+            // Win overlay (без изменений)
             if isWin {
                 ZStack {
                     Color.black.opacity(0.7)

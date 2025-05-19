@@ -20,7 +20,7 @@ class MazeScene: SKScene {
     var isWinHandler: (() -> Void)?
 
     // Параметры стен
-    private let wallThicknessFactor: CGFloat = 0.4
+    private let wallThicknessFactor: CGFloat = 1.0
     
     // Инициализатор с указанием размеров лабиринта
     init(size: CGSize, rows: Int = MazeGameConstants.defaultRows, cols: Int = MazeGameConstants.defaultCols) {
@@ -41,19 +41,31 @@ class MazeScene: SKScene {
         drawMaze()
         setupPlayer()
         setupExit()
-        setupSwipeGestures()
     }
 
     private func layoutMazeArea() {
         let gridRows = maze.count
         let gridCols = maze[0].count
-        let maxSide = min(size.width, size.height * 0.5)
-        let cellSide = maxSide / CGFloat(gridCols)
-        tileSize = CGSize(width: cellSide, height: cellSide)
+        
+        // Оптимизировано масштабирование для использования большей части экрана
+        let availableWidth = size.width * 0.9
+        let availableHeight = size.height * 0.8
+        
+        let cellWidthByWidth = availableWidth / CGFloat(gridCols)
+        let cellHeightByHeight = availableHeight / CGFloat(gridRows)
+        
+        // Выбираем минимальный размер для сохранения пропорций
+        let cellSize = min(cellWidthByWidth, cellHeightByHeight)
+        
+        tileSize = CGSize(width: cellSize, height: cellSize)
 
-        let totalWidth = CGFloat(gridCols) * cellSide
+        // Центрируем лабиринт
+        let totalWidth = CGFloat(gridCols) * cellSize
+        let totalHeight = CGFloat(gridRows) * cellSize
+        
         let originX = (size.width - totalWidth) / 2
-        let originY = size.height * 0.25
+        let originY = (size.height - totalHeight) / 2
+        
         mazeOrigin = CGPoint(x: originX, y: originY)
     }
 
@@ -84,30 +96,33 @@ class MazeScene: SKScene {
     private func drawMaze() {
         let gridRows = maze.count
         let gridCols = maze[0].count
-        let wallSize = CGSize(width: tileSize.width * wallThicknessFactor,
-                           height: tileSize.height * wallThicknessFactor)
+        let wallSize = CGSize(width: tileSize.width, height: tileSize.height)
         
         for r in 0..<gridRows {
             for c in 0..<gridCols where maze[r][c] == 1 {
-                let x = mazeOrigin.x + CGFloat(c) * tileSize.width + tileSize.width/2
-                let y = mazeOrigin.y + CGFloat(gridRows - r - 1) * tileSize.height + tileSize.height/2
+                let x = mazeOrigin.x + CGFloat(c) * tileSize.width
+                let y = mazeOrigin.y + CGFloat(gridRows - r - 1) * tileSize.height
                 let wall = SKSpriteNode(color: .white, size: wallSize)
-                wall.position = CGPoint(x: x, y: y)
+                wall.position = CGPoint(x: x + tileSize.width/2, y: y + tileSize.height/2)
                 addChild(wall)
             }
         }
     }
 
-    // Отрисовка фона лабиринта
+    // Использование mainFrame в качестве подложки
     private func drawMazeBackground() {
         let rows = maze.count
         let cols = maze[0].count
 
         let width = CGFloat(cols) * tileSize.width
         let height = CGFloat(rows) * tileSize.height
-
-        let bgSize = CGSize(width: width, height: height)
-        let bgNode = SKSpriteNode(color: .gray, size: bgSize)
+        
+        // Создаем текстуру из .mainFrame
+        let texture = SKTexture(imageNamed: "mainFrame")
+        
+        // Добавляем небольшую рамку вокруг лабиринта
+        let margin: CGFloat = 40.0
+        let bgNode = SKSpriteNode(texture: texture, size: CGSize(width: width + margin, height: height + margin))
 
         bgNode.position = CGPoint(
             x: mazeOrigin.x + width / 2,
@@ -117,17 +132,16 @@ class MazeScene: SKScene {
         addChild(bgNode)
     }
 
-    // Настройка игрока
+    // Настройка игрока и выхода
     private func setupPlayer() {
         let startRow = 1, startCol = 1
         let pos = positionForCell(row: startRow, col: startCol)
-        let texture = SKTexture(imageNamed: "eagle11") // Используем текстуру орла из основной игры
+        let texture = SKTexture(imageNamed: "eagle11")
         player = SKSpriteNode(texture: texture, size: tileSize)
         player.position = pos
         addChild(player)
     }
 
-    // Настройка выхода
     private func setupExit() {
         let gridRows = maze.count
         let gridCols = maze[0].count
@@ -135,11 +149,10 @@ class MazeScene: SKScene {
         for r in 0..<gridRows {
             for c in 0..<gridCols where maze[r][c] == 2 {
                 let pos = positionForCell(row: r, col: c)
-                let texture = SKTexture(imageNamed: "coin") // Используем монету как выход
+                let texture = SKTexture(imageNamed: "coin")
                 exitNode = SKSpriteNode(texture: texture, size: tileSize)
                 exitNode.position = pos
                 
-                // Добавляем анимацию вращения для выхода
                 let rotateAction = SKAction.rotate(byAngle: CGFloat.pi * 2, duration: GameConstants.coinRotationDuration)
                 let rotateForever = SKAction.repeatForever(rotateAction)
                 exitNode.run(rotateForever)
@@ -150,25 +163,13 @@ class MazeScene: SKScene {
         }
     }
 
-    // Вычисление позиции для клетки
+    // Вспомогательные методы для позиционирования
     private func positionForCell(row: Int, col: Int) -> CGPoint {
         let x = mazeOrigin.x + CGFloat(col) * tileSize.width + tileSize.width/2
         let y = mazeOrigin.y + CGFloat(maze.count - row - 1) * tileSize.height + tileSize.height/2
         return CGPoint(x: x, y: y)
     }
 
-    // Настройка жестов свайпа
-    private func setupSwipeGestures() {
-        guard let view = self.view else { return }
-        
-        for dir in [UISwipeGestureRecognizer.Direction.up,
-                   .down, .left, .right] {
-            let swipe = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe))
-            swipe.direction = dir
-            view.addGestureRecognizer(swipe)
-        }
-    }
-    
     // Перемещение на заданное смещение
     private func moveBy(dx: CGFloat, dy: CGFloat) {
         let newPos = CGPoint(x: player.position.x + dx, y: player.position.y + dy)
@@ -216,18 +217,7 @@ class MazeScene: SKScene {
         setupExit()
     }
 
-    // Обработчик жестов свайпа
-    @objc private func handleSwipe(_ gesture: UISwipeGestureRecognizer) {
-        switch gesture.direction {
-        case .up: moveUp()
-        case .down: moveDown()
-        case .left: moveLeft()
-        case .right: moveRight()
-        default: break
-        }
-    }
-    
-    // Обработка касаний
+    // Управление через именованные узлы
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         let location = touch.location(in: self)
@@ -259,7 +249,8 @@ struct MazeViewContainer: UIViewRepresentable {
         skView.backgroundColor = .clear
         
         if scene.view == nil {
-            scene.scaleMode = .aspectFill
+            // Важно использовать .aspectFit для соблюдения пропорций
+            scene.scaleMode = .aspectFit
             scene.isWinHandler = {
                 isWin = true
                 appViewModel?.addCoins(MazeGameConstants.reward)
