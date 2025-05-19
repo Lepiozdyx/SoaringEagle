@@ -2,9 +2,8 @@ import SwiftUI
 
 struct MenuView: View {
     @EnvironmentObject private var appViewModel: AppViewModel
-    @StateObject private var svm = SettingsViewModel.shared
-    @State private var showDailyReward = false
     
+    @State private var showDailyReward = false
     // Animation states
     @State private var buttonsOffset: CGFloat = 50
     @State private var buttonsOpacity: Double = 0
@@ -19,13 +18,11 @@ struct MenuView: View {
                 HStack(alignment: .top) {
                     // Settings
                     CircleButtonView(iconName: "gearshape.fill", height: 60) {
-                        svm.play()
                         appViewModel.navigateTo(.settings)
                     }
                     
                     // Daily reward button
                     CircleButtonView(iconName: "gift.fill", height: 60) {
-                        svm.play()
                         appViewModel.navigateTo(.dailyReward)
                     }
                     
@@ -59,8 +56,6 @@ struct MenuView: View {
                             height: 90,
                             isPaid: true
                         ) {
-                            svm.play()
-                            
                             if appViewModel.canPlayTournament {
                                 appViewModel.startTournament()
                             }
@@ -74,7 +69,6 @@ struct MenuView: View {
                             width: 250,
                             height: 90
                         ) {
-                            svm.play()
                             appViewModel.navigateTo(.miniGames)
                         }
                         
@@ -85,7 +79,6 @@ struct MenuView: View {
                             width: 250,
                             height: 90
                         ) {
-                            svm.play()
                             appViewModel.navigateTo(.levelSelect)
                         }
                     }
@@ -98,7 +91,6 @@ struct MenuView: View {
                             width: 250,
                             height: 90
                         ) {
-                            svm.play()
                             appViewModel.navigateTo(.upgrades)
                         }
                         
@@ -109,7 +101,6 @@ struct MenuView: View {
                             width: 250,
                             height: 90
                         ) {
-                            svm.play()
                             appViewModel.navigateTo(.achievements)
                         }
                         
@@ -120,7 +111,6 @@ struct MenuView: View {
                             width: 250,
                             height: 90
                         ) {
-                            svm.play()
                             appViewModel.navigateTo(.shop)
                         }
                     }
@@ -139,11 +129,6 @@ struct MenuView: View {
             withAnimation(.easeOut(duration: 0.5).delay(0.3)) {
                 buttonsOffset = 0
                 buttonsOpacity = 1.0
-            }
-            
-            // Play music
-            if svm.musicIsOn {
-                svm.playMusic()
             }
             
             // Show daily reward overlay if available
@@ -188,8 +173,6 @@ struct MenuView: View {
                 ) {
                     // Claim reward
                     appViewModel.claimDailyReward()
-                    svm.play()
-                    
                     // Close overlay
                     showDailyReward = false
                 }

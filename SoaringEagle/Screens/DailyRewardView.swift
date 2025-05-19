@@ -2,7 +2,6 @@ import SwiftUI
 
 struct DailyRewardView: View {
     @EnvironmentObject private var appViewModel: AppViewModel
-    @StateObject private var svm = SettingsViewModel.shared
     
     @State private var isAnimating = false
     @State private var hasClaimedReward = false
@@ -21,7 +20,6 @@ struct DailyRewardView: View {
                 // Top bar with back button and coins counter
                 HStack {
                     CircleButtonView(iconName: "arrowshape.left.fill", height: 60) {
-                        svm.play()
                         appViewModel.navigateTo(.menu)
                     }
                     
@@ -86,7 +84,6 @@ struct DailyRewardView: View {
                                 .gameFont(18)
                             
                             ActionButtonView(title: "Menu", fontSize: 18, width: 150, height: 60) {
-                                svm.play()
                                 appViewModel.navigateTo(.menu)
                             }
                         }
@@ -98,7 +95,6 @@ struct DailyRewardView: View {
                             .gameFont(14)
                         
                         ActionButtonView(title: "Menu", fontSize: 18, width: 150, height: 60) {
-                            svm.play()
                             appViewModel.navigateTo(.menu)
                         }
                     }
@@ -142,7 +138,6 @@ struct DailyRewardView: View {
     
     // Function to claim daily reward
     private func claimReward() {
-        svm.play()
         hasClaimedReward = true
         
         // Play coins animation

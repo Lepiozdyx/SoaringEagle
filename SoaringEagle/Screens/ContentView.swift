@@ -99,12 +99,12 @@ struct ContentView: View {
             }
         }
         .onAppear {
-            if settings.musicIsOn {
+            if settings.isMusicOn {
                 settings.playMusic()
             }
         }
-        .onChange(of: phase) { newPhase in
-            switch newPhase {
+        .onChange(of: phase) { state in
+            switch state {
             case .active:
                 settings.playMusic()
             case .background, .inactive:

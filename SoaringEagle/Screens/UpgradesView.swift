@@ -3,7 +3,6 @@ import SwiftUI
 struct UpgradesView: View {
     @EnvironmentObject private var appViewModel: AppViewModel
     @StateObject private var viewModel = UpgradesViewModel()
-    @StateObject private var svm = SettingsViewModel.shared
     
     @State private var titleScale: CGFloat = 0.8
     @State private var titleOpacity: Double = 0
@@ -26,7 +25,6 @@ struct UpgradesView: View {
                 // Top bar with back button and coins counter
                 HStack(alignment: .top) {
                     CircleButtonView(iconName: "arrowshape.left.fill", height: 60) {
-                        svm.play()
                         appViewModel.navigateTo(.menu)
                     }
                     
@@ -97,7 +95,6 @@ struct TypeUpgradeItemView: View {
     let onBuy: () -> Void
     let onSelect: () -> Void
     
-    @StateObject private var svm = SettingsViewModel.shared
     @State private var isAnimating = false
     
     var body: some View {
@@ -136,7 +133,6 @@ struct TypeUpgradeItemView: View {
             
             // Buy/select button
             Button {
-                svm.play()
                 if isPurchased {
                     if !isSelected {
                         onSelect()

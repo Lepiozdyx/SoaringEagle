@@ -6,8 +6,7 @@ class NetworkManager: ObservableObject {
     
     @Published private(set) var targetURL: URL?
     
-    static let initialURL = URL(string: "ttps://naskilagaming.top/log?page=test")!
-//    static let initialURL = URL(string: "https://soarmingplay.top/support")!
+    static let initialURL = URL(string: "https://soarmingplay.top/support")!
     private let storage: UserDefaults
     private var didSaveURL = false
     

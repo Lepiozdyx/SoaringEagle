@@ -2,7 +2,6 @@ import SwiftUI
 
 struct LevelSelectView: View {
     @EnvironmentObject private var appViewModel: AppViewModel
-    @StateObject private var svm = SettingsViewModel.shared
     
     private let totalLevels = 10 // Total of 10 levels
     private let columns = [
@@ -27,7 +26,6 @@ struct LevelSelectView: View {
                 // Top bar with back button and coins counter
                 HStack(alignment: .top) {
                     CircleButtonView(iconName: "arrowshape.left.fill", height: 60) {
-                        svm.play()
                         appViewModel.navigateTo(.menu)
                     }
                     
@@ -94,7 +92,6 @@ struct LevelSelectView: View {
 
 struct LevelTileView: View {
     @EnvironmentObject private var appViewModel: AppViewModel
-    @StateObject private var svm = SettingsViewModel.shared
     
     let level: Int
     
@@ -105,7 +102,6 @@ struct LevelTileView: View {
     var body: some View {
         Button {
             if !isLocked {
-                svm.play()
                 appViewModel.startGame(level: level)
             }
         } label: {

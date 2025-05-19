@@ -4,7 +4,6 @@ import SpriteKit
 struct MazeGameView: View {
     @EnvironmentObject private var appViewModel: AppViewModel
     @StateObject private var viewModel = MazeGameViewModel()
-    @StateObject private var svm = SettingsViewModel.shared
     
     // Контроллер для доступа к сцене
     @StateObject private var sceneController = MazeSceneController()
@@ -22,7 +21,6 @@ struct MazeGameView: View {
                 // Top bar with back button and coins counter
                 HStack(alignment: .top) {
                     CircleButtonView(iconName: "arrowshape.left.fill", height: 60) {
-                        svm.play()
                         appViewModel.navigateTo(.miniGames)
                     }
                     
@@ -62,7 +60,6 @@ struct MazeGameView: View {
                                 VStack(spacing: 4) {
                                     // Кнопка вверх
                                     Button {
-                                        svm.play()
                                         sceneController.moveUp()
                                     } label: {
                                         Image(.buttonC)
@@ -81,7 +78,6 @@ struct MazeGameView: View {
                                     // Кнопки влево и вправо
                                     HStack(spacing: 40) {
                                         Button {
-                                            svm.play()
                                             sceneController.moveLeft()
                                         } label: {
                                             Image(.buttonC)
@@ -98,7 +94,6 @@ struct MazeGameView: View {
                                         }
                                         
                                         Button {
-                                            svm.play()
                                             sceneController.moveRight()
                                         } label: {
                                             Image(.buttonC)
@@ -117,7 +112,6 @@ struct MazeGameView: View {
                                     
                                     // Кнопка вниз
                                     Button {
-                                        svm.play()
                                         sceneController.moveDown()
                                     } label: {
                                         Image(.buttonC)
@@ -184,14 +178,12 @@ struct MazeGameView: View {
                         // Action buttons
                         VStack(spacing: 15) {
                             ActionButtonView(title: "Play Again", fontSize: 22, width: 250, height: 60) {
-                                svm.play()
                                 sceneController.restartGame()
                                 isWin = false
                                 viewModel.restartGame()
                             }
                             
                             ActionButtonView(title: "Menu", fontSize: 22, width: 250, height: 60) {
-                                svm.play()
                                 appViewModel.navigateTo(.miniGames)
                             }
                         }
@@ -210,10 +202,6 @@ struct MazeGameView: View {
             withAnimation(.easeOut(duration: 0.5).delay(0.3)) {
                 contentOpacity = 1.0
                 contentOffset = 0
-            }
-            
-            if svm.musicIsOn {
-                svm.playMusic()
             }
         }
     }

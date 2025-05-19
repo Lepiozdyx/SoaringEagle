@@ -3,7 +3,6 @@ import SwiftUI
 struct ShopView: View {
     @EnvironmentObject private var appViewModel: AppViewModel
     @StateObject private var viewModel = ShopViewModel()
-    @StateObject private var svm = SettingsViewModel.shared
     
     @State private var titleScale: CGFloat = 0.8
     @State private var titleOpacity: Double = 0
@@ -26,7 +25,6 @@ struct ShopView: View {
                 // Top bar with back button and coins counter
                 HStack {
                     CircleButtonView(iconName: "arrowshape.left.fill", height: 60) {
-                        svm.play()
                         appViewModel.navigateTo(.menu)
                     }
                     
@@ -121,7 +119,6 @@ struct ShopView: View {
 // Tab selector between shop categories
 struct TabSelectorView: View {
     @Binding var selectedTab: ShopViewModel.ShopTab
-    @StateObject private var svm = SettingsViewModel.shared
     
     var body: some View {
         HStack(spacing: 20) {
@@ -129,7 +126,6 @@ struct TabSelectorView: View {
                 title: "Skins",
                 isSelected: selectedTab == .skins,
                 action: {
-                    svm.play()
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                         selectedTab = .skins
                     }
@@ -140,7 +136,6 @@ struct TabSelectorView: View {
                 title: "Locations",
                 isSelected: selectedTab == .backgrounds,
                 action: {
-                    svm.play()
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                         selectedTab = .backgrounds
                     }
@@ -187,7 +182,6 @@ struct ShopItemView: View {
     let onBuy: () -> Void
     let onSelect: () -> Void
     
-    @StateObject private var svm = SettingsViewModel.shared
     @State private var isAnimating = false
     
     var body: some View {
@@ -215,7 +209,6 @@ struct ShopItemView: View {
             
             // Buy/select button
             Button {
-                svm.play()
                 if isPurchased {
                     if !isSelected {
                         onSelect()

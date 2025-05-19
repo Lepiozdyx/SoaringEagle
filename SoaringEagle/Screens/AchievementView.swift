@@ -3,7 +3,6 @@ import SwiftUI
 struct AchievementView: View {
     @EnvironmentObject private var appViewModel: AppViewModel
     @StateObject private var viewModel = AchievementViewModel()
-    @StateObject private var svm = SettingsViewModel.shared
     
     @State private var titleScale: CGFloat = 0.8
     @State private var titleOpacity: Double = 0
@@ -19,7 +18,6 @@ struct AchievementView: View {
                 // Top bar with back button and coins counter
                 HStack {
                     CircleButtonView(iconName: "arrowshape.left.fill", height: 60) {
-                        svm.play()
                         appViewModel.navigateTo(.menu)
                     }
                     
@@ -44,7 +42,6 @@ struct AchievementView: View {
                                 isCompleted: viewModel.isAchievementCompleted(achievement.id),
                                 isNotified: viewModel.isAchievementNotified(achievement.id),
                                 onClaim: {
-                                    svm.play()
                                     viewModel.claimReward(for: achievement.id)
                                 }
                             )

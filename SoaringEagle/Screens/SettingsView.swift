@@ -2,13 +2,15 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject private var appViewModel: AppViewModel
-    @StateObject private var svm = SettingsViewModel.shared
+    @StateObject private var settings = SettingsViewModel.shared
     
     @State private var titleScale: CGFloat = 0.8
     @State private var titleOpacity: Double = 0
     
     @State private var settingsOpacity: Double = 0
     @State private var settingsOffset: CGFloat = 20
+    
+    @State private var showingAlert = false
     
     var body: some View {
         ZStack {
@@ -19,7 +21,7 @@ struct SettingsView: View {
                 // Top bar with back button
                 HStack {
                     CircleButtonView(iconName: "arrowshape.left.fill", height: 60) {
-                        svm.play()
+                        settings.play()
                         appViewModel.navigateTo(.menu)
                     }
                     
@@ -27,13 +29,18 @@ struct SettingsView: View {
                     
                     // Reset progress button
                     Button {
-                        appViewModel.resetAllProgress()
+                        showingAlert.toggle()
                     } label: {
-                        Image(systemName: "ladybug.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 20)
-                            .foregroundStyle(.gray)
+                        VStack {
+                            Image(systemName: "exclamationmark.octagon.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 30)
+                                .foregroundStyle(.red)
+                            
+                            Text("Reset")
+                                .gameFont(10)
+                        }
                     }
                 }
                 
@@ -43,22 +50,22 @@ struct SettingsView: View {
                 VStack(spacing: 25) {
                     SettingRow(
                         title: "Sound effects",
-                        isOn: svm.soundIsOn,
+                        isOn: settings.isSoundOn,
                         titleSize: 22,
                         switchSize: 60,
                         action: {
-                            svm.toggleSound()
+                            settings.toggleSound()
                         }
                     )
                     
                     SettingRow(
                         title: "Music",
-                        isOn: svm.musicIsOn,
-                        isDisabled: !svm.soundIsOn,
+                        isOn: settings.isMusicOn,
+                        isDisabled: !settings.isSoundOn,
                         titleSize: 22,
                         switchSize: 60,
                         action: {
-                            svm.toggleMusic()
+                            settings.toggleMusic()
                         }
                     )
                     
@@ -91,6 +98,12 @@ struct SettingsView: View {
                     settingsOffset = 0
                 }
             }
+        }
+        .confirmationDialog("This action will reset all progress. Are you sure?", isPresented: $showingAlert, titleVisibility: .visible) {
+            Button("Yes. Reset!", role: .destructive) {
+                appViewModel.resetAllProgress()
+            }
+            Button("Cancel", role: .cancel) { }
         }
     }
 }

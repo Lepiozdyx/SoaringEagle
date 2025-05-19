@@ -2,7 +2,6 @@ import SwiftUI
 
 struct MiniGamesView: View {
     @EnvironmentObject private var appViewModel: AppViewModel
-    @StateObject private var svm = SettingsViewModel.shared
     
     @State private var gridOpacity: Double = 0
     @State private var gridOffset: CGFloat = 20
@@ -21,7 +20,6 @@ struct MiniGamesView: View {
                 // Top bar with back button and coins counter
                 HStack(alignment: .top) {
                     CircleButtonView(iconName: "arrowshape.left.fill", height: 60) {
-                        svm.play()
                         appViewModel.navigateTo(.menu)
                     }
                     
@@ -41,7 +39,6 @@ struct MiniGamesView: View {
                 LazyVGrid(columns: columns, spacing: 20) {
                     ForEach(MiniGameType.allCases) { gameType in
                         MiniGameItemView(gameType: gameType) {
-                            svm.play()
                             appViewModel.startMiniGame(gameType)
                         }
                     }

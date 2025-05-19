@@ -3,23 +3,27 @@ import AVFoundation
 
 @MainActor class SettingsViewModel: ObservableObject {
     
-    @Published var soundIsOn: Bool {
+    static let shared = SettingsViewModel()
+    
+    @Published var isSoundOn: Bool {
         didSet {
-            defaults.set(soundIsOn, forKey: soundKey)
-            if !soundIsOn && musicIsOn {
-                musicIsOn = false
+            defaults.set(isSoundOn, forKey: soundKey)
+            
+            if !isSoundOn && isMusicOn {
+                isMusicOn = false
             }
         }
     }
     
-    @Published var musicIsOn: Bool {
+    @Published var isMusicOn: Bool {
         didSet {
-            defaults.set(musicIsOn, forKey: musicKey)
-            if musicIsOn {
-                if soundIsOn {
+            defaults.set(isMusicOn, forKey: musicKey)
+            
+            if isMusicOn {
+                if isSoundOn {
                     playMusic()
                 } else {
-                    musicIsOn = false
+                    isMusicOn = false
                 }
             } else {
                 stopMusic()
@@ -27,27 +31,28 @@ import AVFoundation
         }
     }
     
-    static let shared = SettingsViewModel()
     private let defaults = UserDefaults.standard
     private var audioPlayer: AVAudioPlayer?
     private var soundPlayer: AVAudioPlayer?
-    private let soundKey = "eagleSound"
-    private let musicKey = "eagleMusic"
-    private let soundResourceName = "bSound"
-    private let musicResourceName = "bTheme"
+    
+    private let soundKey = "appsound"
+    private let musicKey = "appmusic"
+    
+    private let soundName = "buttonSound"
+    private let musicName = "musicTheme"
     
     private init() {
-        self.soundIsOn = true
-        self.musicIsOn = true
+        self.isSoundOn = true
+        self.isMusicOn = true
         
         if defaults.object(forKey: soundKey) != nil {
-            self.soundIsOn = defaults.bool(forKey: soundKey)
+            self.isSoundOn = defaults.bool(forKey: soundKey)
         } else {
             defaults.set(true, forKey: soundKey)
         }
         
         if defaults.object(forKey: musicKey) != nil {
-            self.musicIsOn = defaults.bool(forKey: musicKey)
+            self.isMusicOn = defaults.bool(forKey: musicKey)
         } else {
             defaults.set(true, forKey: musicKey)
         }
@@ -58,24 +63,24 @@ import AVFoundation
     }
     
     func toggleSound() {
-        soundIsOn.toggle()
+        isSoundOn.toggle()
     }
     
     func toggleMusic() {
-        if !soundIsOn && !musicIsOn {
+        if !isSoundOn && !isMusicOn {
             return
         }
-        musicIsOn.toggle()
+        isMusicOn.toggle()
     }
     
     func play() {
-        guard soundIsOn, let player = soundPlayer else { return }
+        guard isSoundOn, let player = soundPlayer else { return }
         player.currentTime = 0
         player.play()
     }
     
     func playMusic() {
-        guard soundIsOn, musicIsOn, let player = audioPlayer, !player.isPlaying else { return }
+        guard isSoundOn, isMusicOn, let player = audioPlayer, !player.isPlaying else { return }
         player.play()
     }
     
@@ -94,7 +99,7 @@ import AVFoundation
     
     private func fetchSound() {
         guard let url = Bundle.main.url(
-            forResource: soundResourceName,
+            forResource: soundName,
             withExtension: "mp3"
         ) else { return }
         
@@ -108,7 +113,7 @@ import AVFoundation
     
     private func fetchMusic() {
         guard let url = Bundle.main.url(
-            forResource: musicResourceName,
+            forResource: musicName,
             withExtension: "mp3"
         ) else { return }
         

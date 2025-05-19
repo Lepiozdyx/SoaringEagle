@@ -3,7 +3,6 @@ import SpriteKit
 
 struct GameView: View {
     @EnvironmentObject private var appViewModel: AppViewModel
-    @StateObject private var svm = SettingsViewModel.shared
     
     var body: some View {
         GeometryReader { geometry in
